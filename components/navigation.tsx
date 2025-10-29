@@ -109,9 +109,9 @@ export function Navigation() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-6">
         {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity ml-8">
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <picture>
             <source
               media="(min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2)"
@@ -128,13 +128,13 @@ export function Navigation() {
         </Link>
 
         {/* 데스크톱 네비게이션 */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="space-x-0.5">
+        <NavigationMenu className="hidden md:flex flex-1 justify-center">
+          <NavigationMenuList className="space-x-1">
             {navigationItems.map((item) => (
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="flex h-10 min-h-[40px] max-h-[40px] px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200 items-center">
+                    <NavigationMenuTrigger className="flex h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200 items-center">
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                       <span className="leading-[1.2]">{item.title}</span>
                     </NavigationMenuTrigger>
@@ -163,7 +163,7 @@ export function Navigation() {
                       <a
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
                           pathname === item.href && "bg-gray-100 text-gray-900"
                         )}
                       >
@@ -174,7 +174,7 @@ export function Navigation() {
                       <Link
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
                           pathname === item.href && "bg-gray-100 text-gray-900"
                         )}
                       >
