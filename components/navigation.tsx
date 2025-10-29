@@ -36,69 +36,53 @@ const navigationItems = [
     icon: Home
   },
   {
-    title: '경기 기록',
+    title: '리그',
+    href: '/leagues',
+    icon: Trophy,
+    subItems: [
+      { title: '리그 목록', href: '/leagues' },
+      { title: '리그 생성', href: '/leagues/create' },
+      { title: '리그 대시보드', href: '/leagues/dashboard' }
+    ]
+  },
+  {
+    title: '경기',
     href: '/matches',
     icon: Calendar,
     subItems: [
-      { title: '경기 일정', href: '/matches/schedule' },
-      { title: '경기 기록 입력', href: '/matches/record' },
-      { title: '라인업 & 포메이션', href: '/matches/lineup' },
-      { title: '매치 리포트', href: '/matches/reports' }
+      { title: '경기 일정', href: '/matches' },
+      { title: '경기 결과', href: '/matches/results' },
+      { title: '경기 분석', href: '/matches/analysis' }
     ]
   },
   {
-    title: '축구 전술',
+    title: '팀',
+    href: '/teams',
+    icon: Users,
+    subItems: [
+      { title: '팀 목록', href: '/teams' },
+      { title: '팀 생성', href: '/teams/create' },
+      { title: '팀 관리', href: '/teams/manage' }
+    ]
+  },
+  {
+    title: '전술',
     href: '/tactics',
     icon: BarChart3,
     subItems: [
-      { title: '포메이션 분석', href: '/tactics/formations' },
-      { title: '전술 가이드', href: '/tactics/guides' },
-      { title: '상황별 전술', href: '/tactics/situations' },
-      { title: '전술 영상', href: '/tactics/videos' }
+      { title: '전술보드', href: '/tactics' },
+      { title: '포메이션', href: '/tactics/formations' },
+      { title: '전술 분석', href: '/tactics/analysis' }
     ]
   },
   {
-    title: '경기 분석',
-    href: '/analysis',
+    title: '통계',
+    href: '/reports',
     icon: Search,
     subItems: [
-      { title: '경기 하이라이트', href: '/analysis/highlights' },
-      { title: '선수 분석', href: '/analysis/players' },
-      { title: '팀 분석', href: '/analysis/teams' },
-      { title: '통계 대시보드', href: '/analysis/stats' }
-    ]
-  },
-  {
-    title: '기술 훈련',
-    href: '/training',
-    icon: Trophy,
-    subItems: [
-      { title: '기본기 훈련', href: '/training/basics' },
-      { title: '개인기술', href: '/training/skills' },
-      { title: '체력 훈련', href: '/training/fitness' },
-      { title: '훈련 계획', href: '/training/plans' }
-    ]
-  },
-  {
-    title: '레슨',
-    href: '/lessons',
-    icon: Users,
-    subItems: [
-      { title: '기초 레슨', href: '/lessons/basic' },
-      { title: '중급 레슨', href: '/lessons/intermediate' },
-      { title: '고급 레슨', href: '/lessons/advanced' },
-      { title: '전문가 팁', href: '/lessons/expert' }
-    ]
-  },
-  {
-    title: '리뷰',
-    href: '/reviews',
-    icon: MessageSquare,
-    subItems: [
-      { title: '장비 리뷰', href: '/reviews/equipment' },
-      { title: '경기 리뷰', href: '/reviews/matches' },
-      { title: '팀 리뷰', href: '/reviews/teams' },
-      { title: '용품 리뷰', href: '/reviews/gear' }
+      { title: '리그 순위', href: '/reports/standings' },
+      { title: '선수 랭킹', href: '/reports/rankings' },
+      { title: '경기 리포트', href: '/reports/matches' }
     ]
   },
   {
@@ -106,6 +90,16 @@ const navigationItems = [
     href: 'https://blog.footballpad.org/',
     icon: Newspaper,
     external: true
+  },
+  {
+    title: '커뮤니티',
+    href: '/community',
+    icon: MessageSquare,
+    subItems: [
+      { title: '하이라이트', href: '/community' },
+      { title: '포스트', href: '/community/posts' },
+      { title: '토론', href: '/community/discussions' }
+    ]
   }
 ];
 
