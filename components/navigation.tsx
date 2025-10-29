@@ -25,7 +25,8 @@ import {
   Newspaper, 
   MessageSquare,
   Settings,
-  User
+  User,
+  ExternalLink
 } from 'lucide-react';
 
 const navigationItems = [
@@ -89,8 +90,8 @@ const navigationItems = [
     ]
   },
   {
-    title: '뉴스·전략',
-    href: '/blog',
+    title: '블로그',
+    href: 'https://blog.footballpad.org/',
     icon: Newspaper,
     external: true
   },
@@ -120,25 +121,25 @@ export function Navigation() {
 
         {/* 데스크톱 네비게이션 */}
         <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
+          <NavigationMenuList className="space-x-1">
             {navigationItems.map((item) => (
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="h-9">
+                    <NavigationMenuTrigger className="h-10 px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 rounded-lg">
                       <item.icon className="mr-2 h-4 w-4" />
                       {item.title}
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                      <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
                         {item.subItems.map((subItem) => (
                           <li key={subItem.title}>
                             <NavigationMenuLink asChild>
                               <Link
                                 href={subItem.href}
-                                className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-200 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group"
                               >
-                                <div className="text-sm font-medium leading-none">
+                                <div className="text-sm font-medium leading-none group-hover:translate-x-1 transition-transform duration-200">
                                   {subItem.title}
                                 </div>
                               </Link>
@@ -150,16 +151,32 @@ export function Navigation() {
                   </>
                 ) : (
                   <NavigationMenuLink asChild>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50",
-                        pathname === item.href && "bg-accent text-accent-foreground"
-                      )}
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {item.title}
-                    </Link>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          "group inline-flex h-10 w-max items-center justify-center rounded-lg bg-background px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          pathname === item.href && "bg-accent text-accent-foreground"
+                        )}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {item.title}
+                        <ExternalLink className="ml-1 h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          "group inline-flex h-10 w-max items-center justify-center rounded-lg bg-background px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          pathname === item.href && "bg-accent text-accent-foreground"
+                        )}
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {item.title}
+                      </Link>
+                    )}
                   </NavigationMenuLink>
                 )}
               </NavigationMenuItem>
@@ -180,29 +197,43 @@ export function Navigation() {
         {/* 모바일 메뉴 */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="md:hidden">
+            <Button variant="ghost" size="sm" className="md:hidden hover:bg-accent/50">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <div className="flex flex-col space-y-4 mt-6">
+            <div className="flex flex-col space-y-2 mt-6">
               {navigationItems.map((item) => (
                 <div key={item.title}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-accent"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
+                  {item.external ? (
+                    <a
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.title}</span>
+                      <ExternalLink className="ml-auto h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.title}</span>
+                    </Link>
+                  )}
                   {item.subItems && (
-                    <div className="ml-6 space-y-1">
+                    <div className="ml-8 space-y-1">
                       {item.subItems.map((subItem) => (
                         <Link
                           key={subItem.title}
                           href={subItem.href}
-                          className="block px-3 py-1 text-sm text-muted-foreground hover:text-foreground"
+                          className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/30 rounded-md transition-all duration-200"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           {subItem.title}
@@ -212,8 +243,8 @@ export function Navigation() {
                   )}
                 </div>
               ))}
-              <div className="pt-4 border-t">
-                <Button variant="outline" size="sm" asChild className="w-full">
+              <div className="pt-6 border-t border-border">
+                <Button variant="outline" size="sm" asChild className="w-full hover:bg-accent/50">
                   <Link href="/admin">
                     <Settings className="mr-2 h-4 w-4" />
                     관리
