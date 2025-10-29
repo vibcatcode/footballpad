@@ -1,0 +1,2208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light">
+  <title>호산나 프리미어리그</title>
+  <meta name="description" content="호산나축구선교회 프리미어리그 · 월별 시즌/주간 경기 · 자동 순위표 · 득점/도움 랭킹 · 영상 모음" />
+  <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
+
+  <style>
+    :root{
+      --fp-bg:#0b0f14; --fp-card:#121821; --fp-text:#e8eef7; --fp-muted:#9aa7b8; --fp-accent:#00d18f; --fp-border:#1e2633;
+      --tab-bg:#0f1520; --tab-text:#e8eef7;
+      --brand-title-size:clamp(22px, 2.6vw, 32px);
+      /* 순위 하이라이트(미세한 톤) */
+      --hi-gold: rgba(255, 215, 0, .08);
+      --hi-silver: rgba(192, 192, 192, .08);
+      --hi-bronze: rgba(205, 127, 50, .08);
+
+      /* 동영상 타이틀 여백(요청 2번) */
+      --video-title-mt: 28px; /* 위 여백 */
+      --video-title-mb: 10px; /* 아래 여백 */
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --fp-bg:#f6f8fb; --fp-card:#ffffff; --fp-text:#0b0f14; --fp-muted:#5a6572; --fp-border:#e5e9f0; --fp-accent:#0aa77f;
+        --tab-bg:#ffffff; --tab-text:#0b0f14;
+        --hi-gold: rgba(255, 215, 0, .16);
+        --hi-silver: rgba(192, 192, 192, .14);
+        --hi-bronze: rgba(205, 127, 50, .14);
+      }
+    }
+    html,body{margin:0;padding:0;background:var(--fp-bg);color:var(--fp-text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,Noto Sans KR,Helvetica,Arial,sans-serif}
+    html{scroll-behavior:smooth}
+    main{max-width:1200px;margin:0 auto;padding:28px}
+
+    .wrap{background:var(--fp-bg); color:var(--fp-text); padding:24px; border-radius:16px}
+    /* 1번 영역: 헤더 영역 (타이틀과 검색) */
+    .header-section{
+      background:rgba(255,255,255,.02);
+      border:1px solid var(--fp-border);
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:12px;
+    }
+    .header-top{
+      display:flex;gap:2rem;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    }
+    .header-top .search{
+      width:80px;
+    }
+    .header-top .hpl-season{
+      display:flex;
+      gap:6px;
+      align-items:center;
+    }
+    .brand-title{display:flex;gap:.5rem;align-items:baseline}
+    .brand-title a{color:var(--fp-accent);font-weight:800;text-decoration:none;font-size:var(--brand-title-size);line-height:1.2}
+    .brand-title .sep{opacity:.5}
+    .brand-title strong{font-size:var(--brand-title-size); line-height:1.2}
+    
+    
+    /* 네비게이션 버튼들 (스티키 메뉴) */
+    .sticky-nav-section{
+      position:sticky;
+      top:0;
+      z-index:1000;
+      background:var(--fp-bg);
+      padding:8px 0;
+      margin-bottom:12px;
+    }
+    
+
+    
+    .muted{color:var(--fp-muted)}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:flex-start;margin:.25rem 0 1rem}
+
+    /* ── 아이콘 메뉴(요약/영상/랭킹) ── */
+    .quicknav{
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    }
+    .qbtn{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 12px;border-radius:8px;border:1px solid var(--fp-border);
+      background:transparent;color:var(--tab-text);font-weight:600;cursor:pointer;
+      font-size:14px;line-height:1.2;
+    }
+    .qbtn .ico{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:18px;height:18px;font-size:16px;line-height:1;
+    }
+    .qbtn:hover{box-shadow:0 0 0 2px rgba(0,209,143,.15)}
+    .qbtn .ico svg{width:18px;height:18px}
+
+    /* === 개별 버튼 강조(요약/영상/랭킹) === */
+    .qbtn--summary{
+      background:rgba(0,209,143,.18);
+      border-color:rgba(0,209,143,.55);
+      color:#b8ffe8;
+    }
+    .qbtn--video{
+      background:rgba(99,102,241,.20);    /* 인디고톤 */
+      border-color:rgba(99,102,241,.55);
+      color:#e5e7ff;
+    }
+    .qbtn--ranking{
+      background:rgba(234,179,8,.20);     /* 골드톤 */
+      border-color:rgba(234,179,8,.55);
+      color:#fff3c4;
+    }
+
+    .qbtn--summary:hover{ box-shadow:0 0 0 3px rgba(0,209,143,.28) }
+    .qbtn--video:hover  { box-shadow:0 0 0 3px rgba(99,102,241,.28) }
+    .qbtn--ranking:hover{ box-shadow:0 0 0 3px rgba(234,179,8,.28) }
+
+    .qbtn--summary:focus-visible,
+    .qbtn--video:focus-visible,
+    .qbtn--ranking:focus-visible{
+      outline:none;
+      transform:translateY(-1px);
+    }
+
+    /* 라이트 모드 대비 색상 */
+    @media (prefers-color-scheme: light){
+      .qbtn--summary{
+        background:#ccfbf1;               /* teal-100 */
+        border-color:#14b8a6;
+        color:#065f46;
+      }
+      .qbtn--video{
+        background:#e0e7ff;               /* indigo-100 */
+        border-color:#6366f1;
+        color:#312e81;
+      }
+      .qbtn--ranking{
+        background:#fef9c3;               /* yellow-100 */
+        border-color:#eab308;
+        color:#713f12;
+      }
+    }
+
+    /* 스크롤 위치 보정 */
+    .anchor{scroll-margin-top:18px}
+
+    .hpl-season{display:flex;gap:8px;align-items:center}
+    select{appearance:none;padding:10px 32px 10px 12px;border-radius:10px;border:1px solid var(--fp-border);
+      background:var(--tab-bg);color:var(--tab-text);font-weight:600;position:relative;
+      background-image:url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ff0000' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-repeat:no-repeat;background-position:right 8px center;background-size:16px}
+
+    /* 검색창 */
+    .search{position:relative;min-width:260px;flex:1 1 520px;max-width:780px}
+    .search input{width:100%;padding:10px 34px 10px 12px;border-radius:12px;border:1px solid var(--fp-border);
+      background:var(--tab-bg);color:var(--tab-text);font-size:16px}
+    .search svg{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;fill:var(--fp-muted)}
+
+    /* 요약용 주간 탭 (W1~W4) */
+    .rtabs{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+    .rtab{background:var(--tab-bg);color:var(--tab-text);border:1px solid var(--fp-border);
+      padding:6px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .rtab.active{border-color:var(--fp-accent)}
+
+    /* 카드 필터 탭 */
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 6px}
+    .tab{background:var(--tab-bg);color:var(--tab-text);border:1px solid var(--fp-border);
+      padding:8px 12px;border-radius:999px;font-size:14px;cursor:pointer}
+    .tab.active{border-color:var(--fp-accent); box-shadow:0 0 0 2px rgba(0,209,143,.25)}
+
+    /* 표 공통 */
+    .two{display:grid;gap:12px}
+    @media(min-width:900px){.two{grid-template-columns:1fr 1fr}}
+    .table-wrap{overflow:auto;border:1px solid var(--fp-border);border-radius:12px;background:rgba(255,255,255,.02)}
+    table{width:100%;border-collapse:collapse;font-size:14px;table-layout:auto}
+    th,td{padding:10px;border-bottom:1px solid var(--fp-border);text-align:center;border-left:none;border-right:none;border-top:none}
+    th{border-bottom:2px solid var(--fp-border)}
+    thead th{background:#0f1520;white-space:nowrap}
+    @media (prefers-color-scheme: light){ thead th{background:#f1f5f9} }
+    
+    /* 공격포인트 랭킹 1,2,3등 배경색 - 첫 페이지에서만 적용 */
+    #rankSeason tbody tr:nth-child(1) td,
+    #rankYear tbody tr:nth-child(1) td{
+      background: rgba(34, 197, 94, 0.12) !important;
+      font-weight: 700;
+      border-radius: 4px;
+    }
+    #rankSeason tbody tr:nth-child(2) td,
+    #rankYear tbody tr:nth-child(2) td{
+      background: rgba(59, 130, 246, 0.12) !important;
+      font-weight: 700;
+      border-radius: 4px;
+    }
+    #rankSeason tbody tr:nth-child(3) td,
+    #rankYear tbody tr:nth-child(3) td{
+      background: rgba(168, 85, 247, 0.12) !important;
+      font-weight: 700;
+      border-radius: 4px;
+    }
+    
+    /* 모든 테이블 셀의 기본 배경색을 투명으로 설정 */
+    #rankSeason tbody tr td,
+    #rankYear tbody tr td{
+      background: transparent !important;
+    }
+    .gamecell{display:flex;align-items:center;justify-content:center;column-gap:8px;row-gap:4px;flex-wrap:wrap}
+    .vs{opacity:.65}
+    @media (max-width: 600px){ .vs{display:none} }
+    .nowrap{white-space:nowrap}
+
+    /* 순위표 상위 3행 하이라이트 */
+    #standings tbody tr.rank-1{background:var(--hi-gold)}
+    #standings tbody tr.rank-2{background:var(--hi-silver)}
+    #standings tbody tr.rank-3{background:var(--hi-bronze)}
+    #standings tbody tr.rank-1 td:first-child{border-left:3px solid #ffd700}
+    #standings tbody tr.rank-2 td:first-child{border-left:3px solid #c0c0c0}
+    #standings tbody tr.rank-3 td:first-child{border-left:3px solid #cd7f32}
+
+    /* ==== 동영상 섹션 타이틀: 텍스트형(배경/테두리 없음) ==== */
+    .section-title{
+      display:inline-flex; align-items:center; gap:10px;
+      margin-top:var(--video-title-mt);   /* 필요시 값만 조절 */
+      margin-bottom:var(--video-title-mb);
+      padding:0;
+      background:none;                    /* ✔ 배경 제거 */
+      border:none;                        /* ✔ 버튼 느낌 제거 */
+      box-shadow:none;                    /* ✔ 그림자 제거 */
+      font-weight:900;
+      font-size:clamp(20px, 2.1vw, 26px);
+      color:var(--fp-text);
+    }
+    .section-title .icon{ width:24px; height:24px; line-height:0; color:var(--fp-accent); }
+    .section-title .icon svg{ width:24px; height:24px; }
+    .section-title .icon svg circle{ stroke:currentColor; opacity:.55; }
+    .section-title .icon svg path{ fill:currentColor; }
+
+    @media (prefers-color-scheme: light){
+      .section-title{
+        color:#06231a;
+        background:#c9f8df;
+        border-color:rgba(10,167,127,.35);
+      }
+    }
+
+    /* ==== 타이틀 아래 탭/그리드 간격(컴팩트) ==== */
+    .tabs{ margin:6px 0 4px; gap:6px; }
+    .tabs{ margin-top:4px; }   /* 필요 시 한 줄만 더 빡빡하게 */
+    .grid{ margin-top:8px; }
+    .card{ padding:12px; }
+
+    /* 데스크톱에서 탭 약간 컴팩트 */
+    .tab{ padding:7px 11px; font-size:13px; }
+    .rtab{ padding:5px 10px; }
+
+    /* 영상 카드 그리드 */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(12,1fr);
+      gap:14px;
+      margin-top:10px;
+    }
+    .card{
+      grid-column:span 12;
+      background:var(--fp-card);
+      border:1px solid var(--fp-border);
+      border-radius:16px;
+      padding:12px;
+      display:grid;
+      gap:8px;
+      align-content:start;
+    }
+    @media (min-width:640px){ .card{ grid-column:span 6; } }
+    @media (min-width:1024px){ .card{ grid-column:span 4; } }
+
+    .thumb{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#0f1520}
+    .thumb iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+    .title{font-size:clamp(18px, 1.8vw, 24px);margin:2px 0 0;line-height:1.25}
+    /* 점수·팀명(배지) 밑줄 정렬 */
+    .title{ display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+    .title .score{ font-weight:900; line-height:1; vertical-align:baseline; }
+    .title .badges{ line-height:1; }
+    .meta{font-size:13px;color:var(--fp-muted);margin:0}
+    .link{justify-self:start;font-size:13px;color:var(--fp-accent);text-decoration:none;
+      border:1px solid var(--fp-accent);border-radius:10px;padding:6px 10px}
+    .grid .link{
+      font-size:12px;     /* 4번과 동일 크기 */
+      padding:5px 9px;    /* 4번과 동일 패딩 */
+      border-radius:8px;  /* 살짝 컴팩트 */
+      align-self:end;
+    }
+    .grid .link:hover{
+      box-shadow:0 0 0 2px rgba(0,209,143,.25);
+    }
+
+    /* 랭킹 패널 */
+    .panel{border:1px solid var(--fp-border);border-radius:14px;background:var(--fp-card)}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 12px;border-bottom:1px solid var(--fp-border);border-top-left-radius:14px;border-top-right-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.03))}
+    .panel-title{margin:0;font-weight:800;font-size:16px}
+    .panel-header .picker{display:flex;align-items:center;gap:6px}
+    .panel-header select{padding:6px 10px;border-radius:10px;border:1px solid var(--fp-border);
+      background:var(--tab-bg);color:var(--tab-text);font-weight:700}
+
+    /* 배지 */
+    .badges{display:inline-flex;gap:6px;align-items:center}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:.15rem .55rem;border-radius:999px;
+      border:1px solid rgba(255,255,255,.25);font-size:.9rem;line-height:1;font-weight:700}
+    .dot{width:.55rem;height:.55rem;border-radius:50%}
+    .faith-white{background:#fff;color:#0b0f14;border-color:#d1d5db}.faith-white .dot{background:#0b0f14}
+    .hope-blue{background:#1e3a8a;color:#fff;border-color:#3b82f6}.hope-blue .dot{background:#60a5fa}
+    .love-red{background:#e11d48;color:#fff;border-color:#fb7185}.love-red .dot{background:#be123c}
+    .faith-blue{background:#1e3a8a;color:#fff;border-color:#3b82f6}.faith-blue .dot{background:#60a5fa}
+    .hope-white{background:#fff;color:#0b0f14;border-color:#d1d5db}.hope-white .dot{background:#0b0f14}
+
+    .footer{margin-top:18px;text-align:center;color:var(--fp-muted)}
+    summary{cursor:pointer;color:var(--fp-accent)}
+
+    /* 맨 위로(⚽️) 버튼 */
+    .to-top{
+      position:fixed; right:20px; bottom:20px;
+      width:72px; height:72px; padding:0; border-radius:50%;
+      border:1px solid rgba(0,209,143,.45);
+      background:rgba(0,209,143,.22);
+      backdrop-filter:saturate(120%) blur(2px);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; opacity:0; pointer-events:none;
+      transition:opacity .25s ease, transform .2s ease;
+      z-index:9999;
+    }
+    .to-top .ball{
+      display:flex; align-items:center; justify-content:center;
+      width:100%; height:100%;
+      font-size:36px; line-height:1; user-select:none;
+      transform-origin:center bottom;
+      animation:ball-bounce-soft .9s ease-in-out infinite;
+    }
+    .to-top.show{ opacity:1; pointer-events:auto; }
+    .to-top:hover{ transform:translateY(-3px); }
+
+    @keyframes ball-bounce-soft{
+      0%   { transform:translateY(-10%) scale(1,1); }
+      40%  { transform:translateY(6%)  scale(1.04,0.96); }
+      60%  { transform:translateY(-6%) scale(0.99,1.01); }
+      100% { transform:translateY(-10%) scale(1,1); }
+    }
+
+    @media (max-width: 480px){
+      .to-top{ width:64px; height:64px; }
+      .to-top .ball{ font-size:32px; }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .to-top .ball{ animation:none; }
+    }
+
+    /* 모바일 대응 */
+    @media (max-width: 600px){
+      main{
+        max-width:none;
+        padding:max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+      }
+      .wrap{ padding:10px; border-radius:10px; }
+      .row{ gap:8px; }
+      .tabs{ margin:12px 0 4px; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+      .tabs::-webkit-scrollbar{ display:none; }
+      .tab{ flex:0 0 auto; padding:10px 12px; }
+      .search{ flex-basis:100%; max-width:100%; min-width:0; }
+      .two{ grid-template-columns:1fr; }
+      .table-wrap{ border-radius:10px; }
+      table th, table td{ padding:8px; }
+      .grid{ grid-template-columns:repeat(12,1fr); }
+      .card{ grid-column:1 / -1; padding:10px; }
+      .rtabs{overflow-x:auto}
+      /* 모바일에서 동영상 타이틀 살짝 컴팩트 */
+      :root{ --video-title-mt: 22px; --video-title-mb: 8px; }
+      .section-title{ padding:10px 14px; border-radius:12px; font-size:16px; }
+      
+      /* 모바일에서 헤더 조정 */
+      .header-top{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:10px;
+      }
+      .header-section{
+        padding:10px;
+        margin-bottom:10px;
+      }
+      .header-top .search{
+        width:100%;
+      }
+      .header-top .hpl-season{
+        flex-direction:row;
+        gap:6px;
+        align-items:center;
+        flex-wrap:wrap;
+      }
+      .sticky-nav-section{
+        padding:8px 0;
+        margin-bottom:10px;
+      }
+      .quicknav{
+        gap:6px;
+      }
+      .qbtn{
+        padding:5px 8px;
+        font-size:13px;
+      }
+      .qbtn .ico{
+        margin-right:0;
+      }
+      .qbtn span:not(.ico){
+        display:none;
+      }
+    }
+
+    /* 페이지네이션 */
+    .pager{
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      padding:10px; border-top:1px solid var(--fp-border);
+      background:rgba(255,255,255,.02); border-bottom-left-radius:14px; border-bottom-right-radius:14px;
+    }
+    .pager button{
+      appearance:none; border:1px solid var(--fp-border); background:var(--tab-bg); color:var(--tab-text);
+      padding:6px 10px; border-radius:10px; cursor:pointer; font-weight:700; min-width:46px;
+    }
+    .pager button[disabled]{ opacity:.45; cursor:not-allowed; }
+    .pager .info{ font-size:13px; color:var(--fp-muted); margin:0 6px; white-space:nowrap; }
+    .medal{font-size:16px}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="wrap" lang="ko">
+      <!-- 1번 영역: 헤더 영역 (타이틀과 검색) -->
+      <header class="header-section">
+        <div class="header-top">
+          <div class="brand-title">
+            <a href="https://footballpad.org/hosanna">호산나 프리미어리그</a>
+          </div>
+          
+          <!-- HPL 시즌 선택 -->
+          <div class="hpl-season">
+            <label for="hplYearSel" class="muted">HPL 시즌</label>
+            <select id="hplYearSel" aria-label="HPL 시즌 연도 선택"></select>
+            <select id="hplMonthSel" aria-label="HPL 시즌 월 선택"></select>
+          </div>
+          
+          <!-- 검색 영역 -->
+          <label class="search">
+            <input id="search" type="search" placeholder="선수 이름을 입력하세요..">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.471 6.471 0 001.48-4.23C15.91 6.01 12.9 3 9.45 3S3 6.01 3 9.5 6.01 16 9.45 16a6.5 6.5 0 004.23-1.48l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6.05 0C7 14 5 12 5 9.5S7 5 9.45 5 13.9 7 13.9 9.5 11.9 14 9.45 14z"/></svg>
+          </label>
+        </div>
+      </header>
+
+
+      <!-- 네비게이션 버튼들 (스티키 메뉴) -->
+      <div class="sticky-nav-section">
+        <nav class="quicknav" aria-label="빠른 이동">
+           <button class="qbtn qbtn--summary" data-jump="#detailsBox">
+             <span class="ico" aria-hidden="true">
+               <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                 <path d="M18 9.5V6H6v3.5c0 1.48.81 2.75 2 3.45V19H7v2h10v-2h-1v-6.05c1.19-.7 2-2 2-3.45zM12 17c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1zm-6-9h12V4H6v4z" fill="currentColor"/>
+               </svg>
+             </span>
+             순위
+           </button>
+          <button class="qbtn qbtn--video" data-jump="#videosTitle">
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" opacity=".6"/>
+                <path d="M10 8l6 4-6 4z" fill="currentColor"/>
+              </svg>
+            </span>
+            경기 동영상
+          </button>
+           <button class="qbtn qbtn--ranking" data-jump="#scorersBox">
+             <span class="ico" aria-hidden="true">
+               <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+               </svg>
+             </span>
+             선수 기록
+           </button>
+        </nav>
+      </div>
+
+
+      <details id="detailsBox" class="anchor" open>
+        <summary class="section-title">
+          <span class="icon" aria-hidden="true">
+            <!-- 순위표 아이콘 -->
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" fill="currentColor"/>
+            </svg>
+          </span>
+          순위
+        </summary>
+
+        <!-- 요약 전용 주간 탭 -->
+        <nav class="rtabs" id="rtabs" role="tablist" aria-label="요약 주간 탭"></nav>
+
+        <div class="two">
+          <div>
+            <div class="table-wrap" id="summaryWrap" style="height: fit-content;">
+              <table id="summary" aria-live="polite">
+                <thead><tr><th>경기</th><th>날짜</th><th>경기</th><th>스코어</th><th>득점</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <!-- 경기 요약 메시지 영역 -->
+            <div id="matchSummaryMessage" style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,.05); border: 1px solid var(--fp-border); border-radius: 12px; text-align: center; font-weight: 600; color: var(--fp-text);">
+              <!-- 동적 메시지가 여기에 표시됩니다 -->
+            </div>
+          </div>
+
+          <div>
+            <div class="table-wrap">
+              <table id="standings">
+                <thead>
+                  <tr><th>#</th><th>팀</th><th>경기</th><th>승</th><th>무</th><th>패</th><th>득</th><th>실</th><th>득실</th><th>승점</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            
+            <!-- 오른쪽 팀 순위표 아래 사진 영역 -->
+            <div style="margin-top: 8px; padding: 12px; text-align: center;">
+              <img src="https://blog.footballpad.org/hosanna/wp-content/uploads/sites/2/2025/10/호축선-2025.webp" 
+                   alt="호축선 2025" 
+                   style="max-width: 100%; height: auto; border-radius: 8px;">
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 영상 섹션 타이틀(첨부파일 스타일) -->
+      <h2 id="videosTitle" class="section-title anchor" aria-label="경기 동영상">
+        <span class="icon" aria-hidden="true">
+          <!-- ▶ Play in Circle -->
+          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" opacity=".6"/>
+            <path d="M10 8l6 4-6 4z" fill="currentColor"/>
+          </svg>
+        </span>
+        경기 동영상
+      </h2>
+
+      <!-- 카드 리스트 필터 탭 -->
+      <div class="tabs" id="tabs" role="tablist" aria-label="주간 선택"></div>
+
+      <div class="grid" id="grid" aria-live="polite"></div>
+
+      <!-- 선수 기록 -->
+      <details id="scorersBox" class="anchor" open style="margin-top:14px">
+        <summary class="section-title">
+          <span class="icon" aria-hidden="true">
+            <!-- 별 아이콘 -->
+            <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+            </svg>
+          </span>
+          선수 기록
+        </summary>
+        <div class="two">
+
+          <!-- 월간 기록 패널 -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3 class="panel-title">월간 기록</h3>
+              <div class="picker">
+                <label class="muted" for="rankSeasonSize">표시</label>
+                <select id="rankSeasonSize" aria-label="월간 페이지 크기">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+                <select id="rankMonthSel" aria-label="월간 기록 선택"></select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="rankSeason">
+                <thead><tr><th>순위</th><th>선수</th><th>득점</th><th>도움</th><th>공격포인트</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="pager" id="rankSeasonPager"></div>
+          </div>
+
+          <!-- 리그 전체 기록 패널 -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3 class="panel-title">리그 전체 기록</h3>
+              <div class="picker">
+                <label class="muted" for="rankYearSize">표시</label>
+                <select id="rankYearSize" aria-label="연간 페이지 크기">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                </select>
+                <select id="rankYearSel" aria-label="리그 기록 시즌 선택"></select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="rankYear">
+                <thead><tr><th>순위</th><th>선수</th><th>득점</th><th>도움</th><th>공격포인트</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="pager" id="rankYearPager"></div>
+          </div>
+
+        </div>
+      </details>
+
+      <p class="footer">© 2025 호축선 · Powered by <a href="https://footballpad.org/" style="color: var(--fp-accent); text-decoration: none;">풋볼패드</a></p>
+    </section>
+
+    <!-- ⚽ 맨 위로 플로팅 버튼 -->
+    <button id="toTop" class="to-top" aria-label="맨 위로 이동" title="맨 위로">
+      <span class="ball" role="img" aria-hidden="false" aria-label="맨 위로">⚽️</span>
+    </button>
+  </main>
+
+  <script>
+    /* ===== 시즌 데이터 ===== */
+    const SEASONS = {
+      '2024-12': {
+      label:'2024년 12월',
+      colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+      rounds:[
+          { code:'R1', date:'2024-12-07' },
+          { code:'R2', date:'2024-12-14' },
+          { code:'R3', date:'2024-12-21' },
+          { code:'R4', date:'2024-12-28' }
+      ],
+      results:[
+          // R1 (12/7)
+          { round:'R1', game_no:1, home:'믿음', away:'소망', hs:1, as:2, youtube:'', scorers:'이근희, 김정룡, 하종필' },
+          { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:2, as:2, youtube:'', scorers:'임채훈, 연형모, 민영기, 오지수' },
+          { round:'R1', game_no:3, home:'소망', away:'사랑', hs:3, as:1, youtube:'', scorers:'최경호, 김응수, 서창수, 민영기' },
+          { round:'R1', game_no:4, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'임채훈' },
+          { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'이근희' },
+          { round:'R1', game_no:6, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'에드먼, 정재윤' },
+
+          // R2 (12/14)
+          { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'임채훈, 민영기' },
+          { round:'R2', game_no:2, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'김응수' },
+          { round:'R2', game_no:3, home:'믿음', away:'소망', hs:2, as:1, youtube:'', scorers:'이근희, 임채훈, 하종필' },
+          { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'임채훈' },
+          { round:'R2', game_no:5, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R2', game_no:6, home:'믿음', away:'소망', hs:2, as:2, youtube:'', scorers:'임채훈(2), 서창수, 김정룡' },
+
+          // R3 (12/21)
+          { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'정재윤' },
+          { round:'R3', game_no:2, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'에드먼' },
+          { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'김청식(2)' },
+          { round:'R3', game_no:4, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'에드먼' },
+          { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'민영기, 이준원' },
+
+          // R4 (12/28)
+          { round:'R4', game_no:1, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'하종필' },
+          { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R4', game_no:3, home:'소망', away:'사랑', hs:3, as:0, youtube:'', scorers:'김응수, 하종필, 김기대' },
+          { round:'R4', game_no:4, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'연형모' },
+          { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R4', game_no:6, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'하종필' }
+      ]
+    },
+    
+    '2025-01': {
+      label:'2025년 1월',
+      colors: { '믿음':'blue', '소망':'red', '사랑':'white' },
+      rounds:[
+        { code:'R1', date:'2025-01-04' },
+        { code:'R2', date:'2025-01-11' },
+        { code:'R3', date:'2025-01-18' },
+        { code:'R4', date:'2025-01-25' }
+      ],
+      results:[
+        // R1 (1월 4일)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'안성태, 정명규' },
+        { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:3, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'오지수' },
+        { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:6, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'하종필, 김정룡' },
+
+        // R2 (1월 11일)
+        { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:2, home:'소망', away:'사랑', hs:1, as:3, youtube:'', scorers:'오지수, 정두환, 이충국, 연형모' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'정영학, 서창수' },
+        { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:3, as:2, youtube:'', scorers:'안성태(2), 임채훈, 연형모, 한창욱' },
+        { round:'R2', game_no:5, home:'소망', away:'사랑', hs:0, as:2, youtube:'', scorers:'최경호, 채종석' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'정명규, 오지수' },
+
+        // R3 (1월 18일)
+        { round:'R3', game_no:1, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'오지수' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:1, as:3, youtube:'', scorers:'박군서, 채종석, 에드먼, 이충국' },
+        { round:'R3', game_no:4, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'이준기' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'에드먼' },
+
+        // R4 (1월 25일)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'김기대, 한창욱' },
+        { round:'R4', game_no:3, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'한창욱' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'김응수' },
+        { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'정임준, 김정룡' },
+        { round:'R4', game_no:6, home:'소망', away:'사랑', hs:1, as:2, youtube:'', scorers:'박영주, 민영기(2)' }
+      ]
+    },
+
+    '2025-02': {
+      label:'2025년 2월',
+      colors: { '믿음':'white', '소망':'blue', '사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-02-01' },
+        { code:'R2', date:'2025-02-08' },
+        { code:'R3', date:'2025-02-15' },
+        { code:'R4', date:'2025-02-22' }
+      ],
+      results:[
+        // R1 (2/1)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'김기대' },
+        { round:'R1', game_no:2, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'박영주' },
+        { round:'R1', game_no:3, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'서동원' },
+        { round:'R1', game_no:5, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:6, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'한창욱' },
+
+        // R2 (2/8)
+        { round:'R2', game_no:1, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:2, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'정두환' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:4, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'정영학' },
+        { round:'R2', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'하종필' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'에드먼' },
+
+        // R3 (2/15)
+        { round:'R3', game_no:1, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'오지수, 김요한' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:3, as:0, youtube:'', scorers:'하종필, 한창욱, 김응수' },
+        { round:'R3', game_no:3, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'지혁종' },
+        { round:'R3', game_no:4, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'김응수, 이충국' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:2, as:1, youtube:'', scorers:'연형모, 신진균, 박영주' },
+        { round:'R3', game_no:6, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R4 (2/22)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:2, home:'소망', away:'사랑', hs:0, as:2, youtube:'', scorers:'오지수(2)' },
+        { round:'R4', game_no:3, home:'믿음', away:'사랑', hs:2, as:0, youtube:'', scorers:'민영기, 연형모' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:5, home:'소망', away:'사랑', hs:2, as:1, youtube:'', scorers:'김한주, 김정룡, 정재윤' },
+        { round:'R4', game_no:6, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' }
+      ]
+    },
+
+    '2025-03': {
+      label:'2025년 3월',
+      colors: { '믿음':'white', '소망':'blue', '사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-03-15' },
+        { code:'R2', date:'2025-03-22' },
+        { code:'R3', date:'2025-03-29' }
+      ],
+      results:[
+        // R1 (3/15)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'서동원' },
+        { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'김정룡' },
+        { round:'R1', game_no:3, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'한창욱' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'정재현' },
+        { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'김용진' },
+        { round:'R1', game_no:6, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R2 (3/22)
+        { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'오지수, 유명한' },
+        { round:'R2', game_no:2, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'조익준' },
+        { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'유명한(OG)' },
+        { round:'R2', game_no:5, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'양창원' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R3 (3/29)
+        { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'민영기' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'이충국, 정명규' },
+        { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:4, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' }
+      ]
+    },
+
+    '2025-04': {
+      label:'2025년 4월',
+      colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-04-05' },
+        { code:'R2', date:'2025-04-12' },
+        { code:'R3', date:'2025-04-19' },
+        { code:'R4', date:'2025-04-26' }
+      ],
+      results:[
+        // R1 (4/5)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'서동원, 정재윤' },
+        { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'민영기' },
+        { round:'R1', game_no:3, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'정명규' },
+        { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:6, home:'소망', away:'사랑', hs:2, as:0, youtube:'', scorers:'서창수, 연형모' },
+
+        // R2 (4/12)
+        { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:1, as:2, youtube:'', scorers:'정영학, 김응수, 양창원' },
+        { round:'R2', game_no:2, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:1, as:2, youtube:'', scorers:'정영학, 문병노, 연형모' },
+        { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'민영기, 김응수' },
+        { round:'R2', game_no:5, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:0, as:2, youtube:'', scorers:'연형모(2)' },
+
+        // R3 (4/19)
+        { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'김응수' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:3, as:0, youtube:'', scorers:'정영학, 정재윤, 정재현' },
+        { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:4, home:'소망', away:'사랑', hs:3, as:0, youtube:'', scorers:'채종석, 한창욱, 서동원' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'서창수' },
+        { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'하종필, 김기대' },
+
+        // R4 (4/26)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:0, as:2, youtube:'', scorers:'서동원, 연형모' },
+        { round:'R4', game_no:2, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'에드먼' },
+        { round:'R4', game_no:3, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'이근희' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'연형모' },
+        { round:'R4', game_no:5, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'채종석' },
+        { round:'R4', game_no:6, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'정재윤' }
+      ]
+    },
+
+    '2025-05': {
+      label:'2025년 5월',
+      colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-05-03' },
+        { code:'R2', date:'2025-05-10' },
+        { code:'R3', date:'2025-05-17' },
+        { code:'R4', date:'2025-05-24' },
+        { code:'R5', date:'2025-05-31' }
+      ],
+      results:[
+        // R1 (5/3)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:2, as:1, youtube:'', scorers:'이근희, 에드먼, 정영학' },
+        { round:'R1', game_no:2, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:3, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'서창수, 채종석' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'김요한, 민영기' },
+        { round:'R1', game_no:5, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'정재윤' },
+        { round:'R1', game_no:6, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R2 (5/10)
+        { round:'R2', game_no:1, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:2, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'원종명' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'오태근' },
+        { round:'R2', game_no:4, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'연형모' },
+        { round:'R2', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'김응수' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R3 (5/17)
+        { round:'R3', game_no:1, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'지혁종, 송무헌' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'에드먼' },
+        { round:'R3', game_no:3, home:'소망', away:'사랑', hs:2, as:1, youtube:'', scorers:'박군서(2), 정재현' },
+        { round:'R3', game_no:4, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'정명규' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:6, home:'소망', away:'사랑', hs:0, as:2, youtube:'', scorers:'연형모, 서창수' },
+
+        // R4 (5/24)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'김응수, 정두환' },
+        { round:'R4', game_no:2, home:'사랑', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:3, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:2, youtube:'', scorers:'하종필, 민영기' },
+        { round:'R4', game_no:5, home:'사랑', away:'소망', hs:0, as:1, youtube:'', scorers:'박군서' },
+        { round:'R4', game_no:6, home:'믿음', away:'사랑', hs:1, as:2, youtube:'', scorers:'정명규, 연형모, 송무헌' },
+
+        // R5 (5/31)
+        { round:'R5', game_no:1, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'정영학' },
+        { round:'R5', game_no:2, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'정명규' },
+        { round:'R5', game_no:3, home:'믿음', away:'소망', hs:0, as:2, youtube:'', scorers:'김정룡, 박군서' },
+        { round:'R5', game_no:4, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'김정룡, 김재옥' },
+        { round:'R5', game_no:5, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'연형모' },
+        { round:'R5', game_no:6, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' }
+      ]
+    },
+
+    '2025-06': {
+      label:'2025년 6월',
+      colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-06-07' },
+        { code:'R2', date:'2025-06-14' },
+        { code:'R3', date:'2025-06-21' },
+        { code:'R4', date:'2025-06-28' }
+      ],
+      results:[
+        // R1 (6/7)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'김정룡' },
+        { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:3, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'하종필' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'정명규, 오지수' },
+        { round:'R1', game_no:6, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+
+        // R2 (6/14)
+        { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'문동인' },
+        { round:'R2', game_no:2, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'정재윤' },
+        { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:5, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'정재윤' },
+
+        // R3 (6/21)
+        { round:'R3', game_no:1, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'하종필' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'서창수' },
+        { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:1, as:2, youtube:'', scorers:'에드먼, 연형모, 오지수' },
+        { round:'R3', game_no:4, home:'소망', away:'사랑', hs:2, as:0, youtube:'', scorers:'이근희, 김정룡' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:2, as:0, youtube:'', scorers:'정두환(2)' },
+
+        // 6월 (6/28)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:1, as:2, youtube:'', scorers:'지요한, 김기대' },
+        { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:2, as:1, youtube:'', scorers:'에드먼(2), 박군서' },
+        { round:'R4', game_no:3, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:6, home:'소망', away:'사랑', hs:2, as:0, youtube:'', scorers:'경민규, 안성태' }
+      ]
+    },
+
+    '2025-07': {
+      label:'2025년 7월',
+      colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+      rounds:[
+        { code:'R1', date:'2025-07-05' },
+        { code:'R2', date:'2025-07-12' },
+        { code:'R3', date:'2025-07-19' },
+        { code:'R4', date:'2025-07-26' }
+      ],
+      results:[
+        // R1 (7/5)
+        { round:'R1', game_no:1, home:'믿음', away:'소망', hs:0, as:0, youtube:'bAzkBDe359I', scorers:'' },
+        { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:2, youtube:'YYKITwB_6Zk', scorers:'연형모, 김정룡' },
+        { round:'R1', game_no:3, home:'소망', away:'사랑', hs:0, as:1, youtube:'jGC-u63t400', scorers:'한창욱' },
+        { round:'R1', game_no:4, home:'믿음', away:'소망', hs:0, as:3, youtube:'', scorers:'김건민, 이준기, 하종필' },
+        { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'김정룡' },
+        { round:'R1', game_no:6, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'하종필' },
+
+        // R2 (7/12)
+        { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:0, as:1, youtube:'E3hYDca0pMg', scorers:'김정룡' },
+        { round:'R2', game_no:2, home:'소망', away:'사랑', hs:1, as:2, youtube:'n1sN2nDjYnE', scorers:'에드먼, 연형모, 지요한' },
+        { round:'R2', game_no:3, home:'믿음', away:'소망', hs:1, as:2, youtube:'ttqJ8dTwKG4', scorers:'정명규, 김응수, 에드먼' },
+        { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'김정룡, 경민규' },
+        { round:'R2', game_no:5, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R2', game_no:6, home:'믿음', away:'소망', hs:3, as:1, youtube:'', scorers:'박양희, 민영기, 안성태, 하종필' },
+
+        // R3 (7/19)
+        { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:0, youtube:'wYNncH668a0', scorers:'' },
+        { round:'R3', game_no:2, home:'믿음', away:'소망', hs:0, as:1, youtube:'qCSzfxjL09o', scorers:'이승영' },
+        { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:1, as:0, youtube:'IYhXqYnn8Uo', scorers:'박군서' },
+        { round:'R3', game_no:4, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'김응수' },
+        { round:'R3', game_no:5, home:'믿음', away:'소망', hs:2, as:1, youtube:'', scorers:'박요셉, 신진균, 김응수' },
+        { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:2, as:1, youtube:'', scorers:'민영기, 안성태, 연형모' },
+
+        // R4 (7/26)
+        { round:'R4', game_no:1, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'문동인, 안성태, 하종필' },
+        { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:0, as:2, youtube:'', scorers:'정재현, 김정룡' },
+        { round:'R4', game_no:3, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+        { round:'R4', game_no:4, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'서창수' },
+        { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'안성태' },
+        { round:'R4', game_no:6, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'김정룡(PK)' }
+      ]
+    },
+
+    '2025-08': {
+        label:'2025년 8월',
+        colors:{ '믿음':'white','소망':'blue','사랑':'red' },
+        rounds:[
+          { code:'R1', date:'2025-08-02' },
+          { code:'R2', date:'2025-08-09' },
+          { code:'R3', date:'2025-08-16' },
+          { code:'R4', date:'2025-08-23' },
+          { code:'R5', date:'2025-08-30' }
+        ],
+        results:[
+          // R1 (8/2)
+          { round:'R1', game_no:1, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'안성태, 서동원' },
+          { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'채종석' },
+          { round:'R1', game_no:3, home:'소망', away:'사랑', hs:2, as:0, youtube:'', scorers:'김응수(2)' },
+          { round:'R1', game_no:4, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:2, as:1, youtube:'', scorers:'신진균, 안성태, 채종석' },
+          { round:'R1', game_no:6, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'김정룡, 김기대' },
+
+          // R2 (8/9)
+          { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'정재윤' },
+          { round:'R2', game_no:2, home:'소망', away:'사랑', hs:0, as:2, youtube:'', scorers:'에드먼, 김정룡' },
+          { round:'R2', game_no:3, home:'믿음', away:'소망', hs:0, as:1, youtube:'', scorers:'이준기' },
+          { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'에드먼' },
+          { round:'R2', game_no:5, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'김건민' },
+          { round:'R2', game_no:6, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'안성태' },
+
+          // R3 (8/16)
+          { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R3', game_no:2, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'정재현' },
+          { round:'R3', game_no:3, home:'믿음', away:'소망', hs:1, as:1, youtube:'', scorers:'안성태, 김응수' },
+          { round:'R3', game_no:4, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'오지수' },
+          { round:'R3', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R3', game_no:6, home:'믿음', away:'소망', hs:1, as:4, youtube:'', scorers:'안성태, 하종필(2), 김응수, 김요한' },
+
+          // R4 (8/23)
+          { round:'R4', game_no:1, home:'믿음', away:'사랑', hs:1, as:1, youtube:'', scorers:'신진균, 김정룡' },
+          { round:'R4', game_no:2, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'안성태' },
+          { round:'R4', game_no:3, home:'소망', away:'사랑', hs:2, as:1, youtube:'', scorers:'김응수(2), 김정룡' },
+          { round:'R4', game_no:4, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'민영기' },
+          { round:'R4', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R4', game_no:6, home:'소망', away:'사랑', hs:1, as:0, youtube:'', scorers:'원종명' },
+
+          // R5 (8/30)
+          { round:'R5', game_no:1, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+          { round:'R5', game_no:2, home:'소망', away:'사랑', hs:0, as:1, youtube:'', scorers:'에드먼' },
+          { round:'R5', game_no:3, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'안성태' },
+          { round:'R5', game_no:4, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'오태근, 민영기' },
+          { round:'R5', game_no:5, home:'소망', away:'사랑', hs:3, as:1, youtube:'', scorers:'원종명, 하종필(2), 김정룡' },
+          { round:'R5', game_no:6, home:'믿음', away:'사랑', hs:2, as:0, youtube:'', scorers:'민영기, 안성태' }
+        ]
+      },
+
+          '2025-09': {
+            label:'2025년 9월',
+            colors: { '믿음':'white', '소망':'blue', '사랑':'red' },
+            rounds:[
+              { code:'R1', date:'2025-09-06' },
+              { code:'R2', date:'2025-09-13' },
+              { code:'R3', date:'2025-09-20' },
+              { code:'R4', date:'2025-09-27' }
+            ],
+            results: [
+              { round:'R1', game_no:1, home:'믿음', away:'소망', hs:1, as:0, youtube:null, scorers:'김건민' },
+              { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:1, youtube:null, scorers:'정재현' },
+              { round:'R1', game_no:3, home:'소망', away:'사랑', hs:0, as:1, youtube:null, scorers:'정재현' },
+
+              { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:0, as:2, youtube:'IQBTLcAk8RY', scorers:'김진기, 민영기' },
+              { round:'R2', game_no:2, home:'소망', away:'사랑', hs:0, as:0, youtube:'0vMgjFhJnwk' },
+              { round:'R2', game_no:3, home:'믿음', away:'소망', hs:0, as:1, youtube:'fiIGu2LlKf8', scorers:'김응수' },
+              { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+              { round:'R2', game_no:5, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'김정룡, 민영기' },
+              { round:'R2', game_no:6, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'이근희, 김건민' },
+
+              { round:'R3', game_no:1, home:'소망', away:'사랑', hs:0, as:0, youtube:'Vusy42W4p4U' },
+              { round:'R3', game_no:2, home:'믿음', away:'소망', hs:0, as:2, youtube:'wdN8oF37wdE', scorers:'박승종, 정명규' },
+              { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:1, as:2, youtube:'Dl8VT7_yyf0', scorers:'신진균, 정재윤, 민영기' },
+              { round:'R3', game_no:4, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+              { round:'R3', game_no:5, home:'믿음', away:'소망', hs:0, as:0, youtube:'', scorers:'' },
+              { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'원종명' },
+
+              { round:'R4', game_no:1, home:'믿음', away:'소망', hs:1, as:2, youtube:'bUPETFjjxPE', scorers:'심재휘, 하종필, 에드먼' },
+              { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:1, as:2, youtube:'MY0-qi07qik', scorers:'유명한, 정재현, 오지수' },
+              { round:'R4', game_no:3, home:'소망', away:'사랑', hs:1, as:0, youtube:'HbGWpHiouqs', scorers:'박영주' },
+              { round:'R4', game_no:4, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'문동인' },
+              { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'김요한' },
+              { round:'R4', game_no:6, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' }
+            ]
+          },
+
+          '2025-10': {
+            label:'2025년 10월',
+            colors: { '믿음':'blue', '소망':'white', '사랑':'red' },
+            rounds:[
+              { code:'R1', date:'2025-10-04' },
+              { code:'R2', date:'2025-10-11' },
+              { code:'R3', date:'2025-10-18' },
+              { code:'R4', date:'2025-10-25' }
+            ],
+            results: [
+              { round:'R1', game_no:1, home:'믿음', away:'소망', hs:0, as:0, youtube:'e3hgte5P-wQ' },
+              { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:0, as:1, youtube:'R9ybJ17uH34', scorers:'김기대' },
+              { round:'R1', game_no:3, home:'소망', away:'사랑', hs:0, as:2, youtube:'22Zi8gjExcU', scorers:'정진영, 이준기' },
+              { round:'R1', game_no:4, home:'믿음', away:'소망', hs:4, as:0, youtube:null, scorers:'안성태(2골), 정재윤, 이진식' },
+              { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:1, as:0, youtube:null, scorers:'정재현' },
+              { round:'R1', game_no:6, home:'소망', away:'사랑', hs:2, as:0, youtube:null, scorers:'박군서(2골)' },
+
+              { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:0, as:0, youtube:'TIO4W6kvxAM' },
+              { round:'R2', game_no:2, home:'소망', away:'사랑', hs:1, as:0, youtube:'3xb0nn7s1Zc', scorers:'박군서' },
+              { round:'R2', game_no:3, home:'믿음', away:'소망', hs:1, as:0, youtube:'IQ5A1O713dc', scorers:'하종필' },
+              { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:0, as:1, youtube:'', scorers:'김응수' },
+              { round:'R2', game_no:5, home:'소망', away:'사랑', hs:1, as:2, youtube:'', scorers:'박군서, 이충국, 박양희' },
+              { round:'R2', game_no:6, home:'믿음', away:'소망', hs:1, as:0, youtube:'', scorers:'정재윤' },
+
+              { round:'R3', game_no:1, home:'소망', away:'사랑', hs:1, as:1, youtube:'DZPZm7P9Z9k', scorers:'김응수, 이길우' },
+              { round:'R3', game_no:2, home:'믿음', away:'소망', hs:2, as:0, youtube:'KjknTArWb1c', scorers:'오태근, 연형모' },
+              { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:0, as:0, youtube:'-TO6UPvPO3I' },
+              { round:'R3', game_no:4, home:'소망', away:'사랑', hs:1, as:1, youtube:'', scorers:'박영주, 박군서' },
+              { round:'R3', game_no:5, home:'믿음', away:'소망', hs:4, as:0, youtube:'', scorers:'안성태, 연형모, 오태근(2)' },
+              { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:1, as:0, youtube:'', scorers:'원종명' },
+
+              { round:'R4', game_no:1, home:'믿음', away:'소망', hs:3, as:0, youtube:'pGglDGSfEWw', scorers:'하종필, 안성태, 연형모' },
+              { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:0, as:0, youtube:'8uaXaS4q4So', scorers:'' },
+              { round:'R4', game_no:3, home:'소망', away:'사랑', hs:1, as:0, youtube:'8kFtHNGZGMw', scorers:'민영기' },
+              { round:'R4', game_no:4, home:'믿음', away:'소망', hs:2, as:0, youtube:'', scorers:'에드먼, 안성태' },
+              { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:0, as:0, youtube:'', scorers:'' },
+              { round:'R4', game_no:6, home:'소망', away:'사랑', hs:0, as:0, youtube:'', scorers:'' }
+            ] 
+          },
+
+          '2025-11': {
+            label:'2025년 11월',
+            colors: { '믿음':'blue', '소망':'white', '사랑':'red' },
+            rounds:[
+              { code:'R1', date:'2025-11-01' },
+              { code:'R2', date:'2025-11-08' },
+              { code:'R3', date:'2025-11-15' },
+              { code:'R4', date:'2025-11-22' },
+              { code:'R5', date:'2025-11-29' }
+            ],
+            results: [
+              { round:'R1', game_no:1, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R1', game_no:2, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R1', game_no:3, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R1', game_no:4, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R1', game_no:5, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R1', game_no:6, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+
+              { round:'R2', game_no:1, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R2', game_no:2, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R2', game_no:3, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R2', game_no:4, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R2', game_no:5, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R2', game_no:6, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+
+              { round:'R3', game_no:1, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R3', game_no:2, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R3', game_no:3, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R3', game_no:4, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R3', game_no:5, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R3', game_no:6, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+
+              { round:'R4', game_no:1, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:3, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:4, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:6, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+
+              { round:'R4', game_no:1, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:2, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:3, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:4, home:'믿음', away:'소망', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:5, home:'믿음', away:'사랑', hs:null, as:null, youtube:'', scorer:'' },
+              { round:'R4', game_no:6, home:'소망', away:'사랑', hs:null, as:null, youtube:'', scorer:'' }
+            ] 
+          }
+    };
+
+    /* ===== 유틸 ===== */
+    const onlyMonthText = k => `${parseInt(k.slice(5),10)}월`;
+    const fmtDateSlash = s => { const [,m,d]=s.split('-').map(n=>parseInt(n,10)); const z=n=>String(n).padStart(2,'0'); return `${z(m)}/${z(d)}`; };
+    const roundToWeek = code => `W${parseInt(String(code).replace(/\D/g,''),10) || ''}`;
+    const medalFor = r => r===1?'🥇':(r===2?'🥈':(r===3?'🥉':''));
+    const parseISO = s => { const [y,m,d]=s.split('-').map(Number); return new Date(y, m-1, d); };
+    
+    /* 득점자 이름을 클릭 가능한 링크로 변환 */
+    const formatScorers = (scorersText) => {
+      if (!scorersText) return '';
+      return scorersText.split(',').map(scorer => {
+        const trimmed = scorer.trim();
+        const match = trimmed.match(/^(.+?)(?:\s*\((\d+)\)|\s*(\d+)골|\s*x?\s*(\d+))?$/);
+        if (match) {
+          const name = match[1].trim();
+          return `<a href="#" class="scorer-link" data-scorer="${name}" style="color: var(--fp-accent); text-decoration: none; cursor: pointer;">${trimmed}</a>`;
+        }
+        return `<a href="#" class="scorer-link" data-scorer="${trimmed}" style="color: var(--fp-accent); text-decoration: none; cursor: pointer;">${trimmed}</a>`;
+      }).join(', ');
+    };
+
+    /* 랭킹에서 해당 선수 하이라이트 */
+    const highlightScorerInRankings = (scorerName) => {
+      // 기존 하이라이트 제거
+      document.querySelectorAll('.highlighted-scorer').forEach(el => {
+        el.classList.remove('highlighted-scorer');
+        el.style.backgroundColor = '';
+      });
+
+      // 월간과 연간 랭킹 모두에서 찾기
+      searchInBothRankings(scorerName);
+    };
+
+    /* 월간과 연간 랭킹 모두에서 선수 찾기 */
+    const searchInBothRankings = async (scorerName) => {
+      let foundInMonth = false;
+      let foundInYear = false;
+      
+      // 기존 하이라이트 제거
+      document.querySelectorAll('.highlighted-scorer').forEach(el => {
+        el.classList.remove('highlighted-scorer');
+        el.style.backgroundColor = '';
+        el.style.border = '';
+        el.style.borderRadius = '';
+      });
+      
+      // 화면 크기 확인 (데스크탑/모바일 구분)
+      const isDesktop = window.innerWidth > 600;
+      
+      if (isDesktop) {
+        // 데스크탑: 월간과 연간 랭킹 모두에서 찾기
+        foundInMonth = await searchInMonthRankings(scorerName);
+        foundInYear = await searchInYearRankings(scorerName);
+      } else {
+        // 모바일: 연간 랭킹에서만 찾기
+        foundInYear = await searchInYearRankings(scorerName);
+      }
+      
+      // 찾지 못했으면 메시지 표시
+      if (!foundInMonth && !foundInYear) {
+        console.log(`선수 "${scorerName}"을(를) 랭킹에서 찾을 수 없습니다.`);
+      }
+    };
+
+    /* 연간 랭킹에서 선수 찾기 (페이지 이동 포함) */
+    const searchInYearRankings = async (scorerName) => {
+      let found = false;
+      
+      // 현재 연간 랭킹에서 먼저 찾기
+      const yearRows = document.querySelectorAll('#rankYear tbody tr');
+      for (const row of yearRows) {
+        const nameCell = row.querySelector('td:nth-child(2)');
+        if (nameCell && nameCell.textContent.trim() === scorerName) {
+          highlightRow(row);
+          return true;
+        }
+      }
+      
+      // 현재 페이지에서 못 찾았으면 전체 데이터에서 검색
+      const yy = parseInt(rankYearSel.value, 10);
+      const yearKeys = Object.keys(SEASONS).filter(k => isInLeagueYear(k, yy));
+      const yearMatches = yearKeys.flatMap(k=>Object.values(buildMatches(k)).flat());
+      const yearAll = rankWithTies(
+        computeContributions(yearMatches),
+        r => `${String(r.pts).padStart(3,'0')}-${String(r.g).padStart(3,'0')}`
+      );
+      
+      // 전체 데이터에서 해당 선수 찾기
+      const playerIndex = yearAll.findIndex(player => player.name === scorerName);
+      if (playerIndex === -1) {
+        // 연간에서 찾지 못함
+        return false;
+      }
+      
+      // 해당 선수가 있는 페이지 계산
+      const yearPageSize = parseInt(rankYearSizeSel.value, 10) || 20;
+      const targetPage = Math.floor(playerIndex / yearPageSize) + 1;
+      
+      // 해당 페이지로 이동
+      if (targetPage !== rankYearPage) {
+        rankYearPage = targetPage;
+        renderRanks();
+        
+        // 페이지 로딩 대기
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // 해당 페이지에서 선수 하이라이트
+        const newYearRows = document.querySelectorAll('#rankYear tbody tr');
+        for (const row of newYearRows) {
+          const nameCell = row.querySelector('td:nth-child(2)');
+          if (nameCell && nameCell.textContent.trim() === scorerName) {
+            highlightRow(row);
+            found = true;
+            break;
+          }
+        }
+      }
+      
+      return found;
+    };
+
+    /* 월간 랭킹에서 선수 찾기 (페이지 이동 포함) */
+    const searchInMonthRankings = async (scorerName) => {
+      let found = false;
+      
+      // 현재 월간 랭킹에서 먼저 찾기
+      const monthRows = document.querySelectorAll('#rankSeason tbody tr');
+      for (const row of monthRows) {
+        const nameCell = row.querySelector('td:nth-child(2)');
+        if (nameCell && nameCell.textContent.trim() === scorerName) {
+          highlightRow(row);
+          return true;
+        }
+      }
+      
+      // 현재 페이지에서 못 찾았으면 전체 데이터에서 검색
+      const monthKey = rankMonthSel.value;
+      const seasonMatches = Object.values(buildMatches(monthKey)).flat();
+      const monthAll = rankWithTies(
+        computeContributions(seasonMatches),
+        r => `${String(r.pts).padStart(3,'0')}-${String(r.g).padStart(3,'0')}`
+      );
+      
+      // 전체 데이터에서 해당 선수 찾기
+      const playerIndex = monthAll.findIndex(player => player.name === scorerName);
+      if (playerIndex === -1) {
+        // 월간에서 찾지 못함
+        return false;
+      }
+      
+      // 해당 선수가 있는 페이지 계산
+      const monthPageSize = parseInt(rankSeasonSizeSel.value, 10) || 20;
+      const targetPage = Math.floor(playerIndex / monthPageSize) + 1;
+      
+      // 해당 페이지로 이동
+      if (targetPage !== rankSeasonPage) {
+        rankSeasonPage = targetPage;
+        renderRanks();
+        
+        // 페이지 로딩 대기
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // 해당 페이지에서 선수 하이라이트
+        const newMonthRows = document.querySelectorAll('#rankSeason tbody tr');
+        for (const row of newMonthRows) {
+          const nameCell = row.querySelector('td:nth-child(2)');
+          if (nameCell && nameCell.textContent.trim() === scorerName) {
+            highlightRow(row);
+            found = true;
+            break;
+          }
+        }
+      }
+      
+      return found;
+    };
+
+    /* 검색창에서 선수 이름으로 랭킹 검색 */
+    const searchPlayerInRankings = async (playerName) => {
+      // 기존 하이라이트 제거
+      document.querySelectorAll('.highlighted-scorer').forEach(el => {
+        el.classList.remove('highlighted-scorer');
+        el.style.backgroundColor = '';
+        el.style.border = '';
+        el.style.borderRadius = '';
+      });
+
+      // 화면 크기 확인
+      const isDesktop = window.innerWidth > 600;
+      let found = false;
+
+      if (isDesktop) {
+        // 데스크탑: 월간과 연간 랭킹 모두에서 찾기
+        const foundInMonth = await searchInMonthRankings(playerName);
+        const foundInYear = await searchInYearRankings(playerName);
+        found = foundInMonth || foundInYear;
+      } else {
+        // 모바일: 연간 랭킹에서만 찾기
+        found = await searchInYearRankings(playerName);
+      }
+
+      // 찾았으면 3초 타이머 취소하고 검색 필드 초기화
+      if (found && messageTimeout) {
+        clearTimeout(messageTimeout);
+        messageTimeout = null;
+        // 검색 필드 초기화
+        setTimeout(() => {
+          searchInput.value = '';
+        }, 1000);
+      }
+    };
+
+    /* 행 하이라이트 */
+    const highlightRow = (row) => {
+      // 기존 하이라이트 제거
+      document.querySelectorAll('.highlighted-scorer').forEach(el => {
+        el.classList.remove('highlighted-scorer');
+        el.style.backgroundColor = '';
+        el.style.border = '';
+        el.style.borderRadius = '';
+      });
+      
+      // 새 하이라이트 적용
+      row.classList.add('highlighted-scorer');
+      row.style.backgroundColor = 'rgba(0, 209, 143, 0.2)';
+      row.style.border = '2px solid var(--fp-accent)';
+      row.style.borderRadius = '8px';
+      row.scrollIntoView({behavior: 'smooth', block: 'center'});
+      
+      // 5초 후 하이라이트 제거
+      setTimeout(() => {
+        if (row.classList.contains('highlighted-scorer')) {
+          row.classList.remove('highlighted-scorer');
+          row.style.backgroundColor = '';
+          row.style.border = '';
+          row.style.borderRadius = '';
+        }
+      }, 5000);
+    };
+
+    /* ===== 배지 ===== */
+    const teamClassForSeason = (team, seasonKey) => {
+      const map = SEASONS[seasonKey]?.colors || {};
+      const k = (map[team] || '').toLowerCase();
+      if (team==='믿음')  return k==='blue'  ? 'faith-blue'  : 'faith-white';
+      if (team==='소망')  return k==='white' ? 'hope-white'  : 'hope-blue';
+      return 'love-red';
+    };
+    const teamBadge = (team, seasonKey) =>
+      `<span class="badge ${teamClassForSeason(team, seasonKey)}"><span class="dot"></span>${team}</span>`;
+
+    /* ===== 스케줄 템플릿(주 6경기) ===== */
+    const BASE_ORDER = [
+      { home:'믿음', away:'소망' }, { home:'사랑', away:'믿음' }, { home:'소망', away:'사랑' },
+      { home:'소망', away:'믿음' }, { home:'믿음', away:'사랑' }, { home:'사랑', away:'소망' },
+    ];
+
+    /* ===== 요소 ===== */
+    const hplYearSel = document.getElementById('hplYearSel');
+    const hplMonthSel = document.getElementById('hplMonthSel');
+    const tabs = document.getElementById('tabs');
+    const rtabs = document.getElementById('rtabs');
+    const search = document.getElementById('search');
+    const grid = document.getElementById('grid');
+    const summaryT = document.querySelector('#summary tbody');
+    const standingsT = document.querySelector('#standings tbody');
+    const rankMonthSel = document.getElementById('rankMonthSel');
+    const rankYearSel  = document.getElementById('rankYearSel');
+    const rankSeasonSizeSel = document.getElementById('rankSeasonSize');
+    const rankYearSizeSel = document.getElementById('rankYearSize');
+
+    /* ===== 초기화 ===== */
+    function initSelectors(){
+      const keys = Object.keys(SEASONS).sort();
+      const years = [...new Set(keys.map(k=>k.slice(0,4)))].sort();
+      if(years.length===0) return;
+
+      // HPL 시즌 연도 선택 (전년 12월 ~ 당년 11월)
+      const hplYears = [...new Set(years)];
+      hplYearSel.innerHTML = hplYears.map(y=>`<option value="${y}">${y}년</option>`).join('');
+      hplYearSel.value = hplYears.at(-1);
+
+      // HPL 시즌 월 선택 (해당 연도의 월들)
+      updateHplMonthOptions();
+      
+      // 랭킹 - 월간
+      rankMonthSel.innerHTML = keys.map(k=>`<option value="${k}">${onlyMonthText(k)}</option>`).join('');
+      rankMonthSel.value = hplMonthSel.value;
+
+      // 랭킹 - 연간(리그 시즌: 전년 12월 ~ 당년 11월)
+      const fmtYY = y => String(y).slice(2);
+      rankYearSel.innerHTML = hplYears.map(y=>{
+        const label = `${fmtYY(y-1)}.12/${fmtYY(y)}.11`;
+        return `<option value="${y}">${label}</option>`;
+      }).join('');
+      rankYearSel.value = hplYears.at(-1);
+    }
+
+    /* HPL 시즌 월 옵션 업데이트 */
+    function updateHplMonthOptions() {
+      const selectedYear = parseInt(hplYearSel.value);
+      const prevYear = selectedYear - 1;
+      
+      // 전년도 12월과 당년도 1월~11월 데이터 수집
+      const availableMonths = [];
+      
+      // 전년도 12월 추가
+      const prevDecKey = `${prevYear}-12`;
+      if (SEASONS[prevDecKey]) {
+        availableMonths.push({ key: prevDecKey, month: 12, year: prevYear, label: `’24·12` });
+      }
+      
+      // 당년도 1월~11월 추가
+      for (let month = 1; month <= 11; month++) {
+        const key = `${selectedYear}-${String(month).padStart(2, '0')}`;
+        if (SEASONS[key]) {
+          availableMonths.push({ key: key, month: month, year: selectedYear, label: `${month}월` });
+        }
+      }
+      
+      hplMonthSel.innerHTML = availableMonths.map(item => 
+        `<option value="${item.key}">${item.label}</option>`
+      ).join('');
+      
+      // 기본값 설정 (현재 월 우선, 없으면 가장 최근 월)
+      if (availableMonths.length > 0) {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+        const currentKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+        
+        // 현재 월이 있으면 선택, 없으면 가장 최근 월 선택
+        const currentMonthExists = availableMonths.some(month => month.key === currentKey);
+        hplMonthSel.value = currentMonthExists ? currentKey : availableMonths.at(-1).key;
+      }
+    }
+
+    /* ===== 날짜 기준 라운드 자동 선택 ===== */
+    function pickRoundForToday(seasonKey){
+      const rounds = (SEASONS[seasonKey]?.rounds)||[];
+      if(!rounds.length) return null;
+      const today = new Date(); today.setHours(0,0,0,0);
+      // 당일 또는 가장 가까운 '이전' 라운드
+      let chosen = rounds[0].code;
+      for(const r of rounds){
+        if(parseISO(r.date) <= today) chosen = r.code;
+      }
+      return chosen;
+    }
+
+    /* ===== 데이터 빌드 ===== */
+    function buildMatches(seasonKey){
+      const season = SEASONS[seasonKey] || {};
+      const {rounds=[], results=[]} = season;
+      const byRound = {};
+      rounds.forEach(r=>{
+        byRound[r.code] = BASE_ORDER.map((p,i)=>({
+          season:seasonKey, year:seasonKey.slice(0,4), round:r.code, date:r.date, game_no:i+1,
+          home:p.home, away:p.away, hs:null, as:null, youtube:null, scorers:null, assists:null
+        }));
+      });
+      results.forEach(res=>{
+        const arr = byRound[res.round]; if(!arr) return;
+        const idx = (res.game_no??1)-1;
+        if(arr[idx]) Object.assign(arr[idx], res); else arr.push(res);
+      });
+      return byRound;
+    }
+
+    /* ===== 카드 탭(ALL+W1~) ===== */
+    function makeTabs(seasonKey){
+      tabs.innerHTML = '';
+      // 기본은 ALL을 만들지만, 초기 렌더에서 자동 선택 라운드로 교체
+      make('ALL','전체',true);
+      (SEASONS[seasonKey]?.rounds||[]).forEach(r=> make(r.code, `${roundToWeek(r.code)} (${r.date.slice(5)})`));
+      function make(val,label,active=false){
+        const b = document.createElement('button');
+        b.className = 'tab' + (active?' active':'');
+        b.dataset.round = val; b.textContent = label;
+        b.addEventListener('click', ()=>{
+          tabs.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active');
+          renderCards(buildMatches(seasonKey), seasonKey);
+        });
+        tabs.appendChild(b);
+      }
+    }
+    const getActiveRound = () => tabs.querySelector('.tab.active')?.dataset.round || 'ALL';
+
+    /* ===== 요약용 주간 탭(W1~) ===== */
+    function makeRTabs(seasonKey){
+      rtabs.innerHTML = '';
+      (SEASONS[seasonKey]?.rounds||[]).forEach((r,idx)=>{
+        const b = document.createElement('button');
+        b.className='rtab'+(idx===0?' active':''); b.dataset.round=r.code; b.textContent=roundToWeek(r.code);
+        b.addEventListener('click', ()=>{
+          rtabs.querySelectorAll('.rtab').forEach(x=>x.classList.remove('active'));
+          b.classList.add('active');
+          renderSummary(buildMatches(seasonKey), seasonKey);
+        });
+        rtabs.appendChild(b);
+      });
+    }
+    const getSummaryRound = () => rtabs.querySelector('.rtab.active')?.dataset.round || null;
+
+    /* ===== 순위 계산 ===== */
+    function computeTable(matchesByRound){
+      const TEAMS=['믿음','소망','사랑'];
+      const s = Object.fromEntries(TEAMS.map(t=>[t,{P:0,W:0,D:0,L:0,GF:0,GA:0,GD:0,PTS:0}]));
+      Object.values(matchesByRound).flat().forEach(m=>{
+        if(m.hs==null||m.as==null) return;
+        s[m.home].P++; s[m.away].P++;
+        s[m.home].GF+=m.hs; s[m.home].GA+=m.as;
+        s[m.away].GF+=m.as; s[m.away].GA+=m.hs;
+        if(m.hs>m.as){ s[m.home].W++; s[m.away].L++; s[m.home].PTS+=3; }
+        else if(m.hs<m.as){ s[m.away].W++; s[m.home].L++; s[m.away].PTS+=3; }
+        else { s[m.home].D++; s[m.away].D++; s[m.home].PTS++; s[m.away].PTS++; }
+      });
+      TEAMS.forEach(t=> s[t].GD=s[t].GF-s[t].GA);
+      return TEAMS.map(t=>({team:t,...s[t]}))
+        .sort((a,b)=> b.PTS-a.PTS || b.GD-a.GD || b.GF-a.GF || a.team.localeCompare(b.team,'ko'));
+    }
+
+    /* ===== 득점/도움 랭킹 ===== */
+    function parseTokenList(str, kind){
+      if(!str) return [];
+      return str.split(',').map(s=>s.trim()).filter(Boolean).map(tok=>{
+        // OG(자책골) 체크 - 득점 랭킹에 포함되지 않음
+        if(kind==='goal' && /\(OG\)$/.test(tok)) {
+          return null; // OG는 랭킹에서 제외
+        }
+        
+        const re = kind==='goal'
+          ? /^(.+?)(?:\s*(?:x?\s*(\d+)\s*(?:골)?|\((\d+)\s*골\)|\((\d+)\)|\(PK\)))?$/
+          : /^(.+?)(?:\s*(?:x?\s*(\d+)\s*도움|\((\d+)\s*도움\)|도움))?$/;
+        const m = tok.match(re);
+        if(m){
+          let name = m[1].trim();
+          let n = 1;
+          if(m[2]) n = +m[2];
+          else if(m[3]) n = +m[3];
+          else if(m[4]) n = +m[4];
+          else if(kind==='assist' && /도움$/.test(tok)) n = 1;
+          
+          // PK는 일반 득점으로 합산 (PK 표시 제거)
+          if(kind==='goal' && name.endsWith('(PK)')) {
+            name = name.replace('(PK)', '').trim();
+          }
+          
+          return {name, n};
+        }
+        return {name: tok, n: 1};
+      }).filter(Boolean); // null 값 제거
+    }
+    function computeContributions(matches){
+      const map=new Map();
+      matches.forEach(m=>{
+        parseTokenList(m.scorers,'goal').forEach(({name,n})=>{
+          if(!map.has(name)) map.set(name,{g:0,a:0}); 
+          map.get(name).g+=n;
+        });
+        parseTokenList(m.assists,'assist').forEach(({name,n})=>{
+          if(!map.has(name)) map.set(name,{g:0,a:0}); 
+          map.get(name).a+=n;
+        });
+      });
+      return [...map.entries()].map(([name,v])=>({name,g:v.g,a:v.a,pts:v.g+v.a}))
+        .sort((x,y)=> y.pts-x.pts || y.g-x.g || x.name.localeCompare(y.name,'ko'));
+    }
+    function rankWithTies(rows, keyFn){
+      let rank=0, prev=null, idx=0;
+      return rows.map(r=>{ idx++; const key=keyFn(r); if(prev===null||key!==prev){rank=idx; prev=key;} return {...r,rank}; });
+    }
+
+    /* ===== 페이지네이션 상태 ===== */
+    let rankSeasonPage = 1; // 월간
+    let rankYearPage   = 1; // 연간
+
+    function slicePage(rows, page, pageSize){
+      const size = Math.max(1, pageSize|0);
+      const total = Math.max(1, Math.ceil(rows.length / size));
+      const p = Math.min(Math.max(1, page), total);
+      const start = (p - 1) * size;
+      return { page: p, total, items: rows.slice(start, start + size) };
+    }
+
+    function renderPager(el, page, total, which){
+      if(!el) return;
+      if(total <= 1){
+        el.innerHTML = '';
+        return;
+      }
+      el.innerHTML = `
+        <button data-which="${which}" data-act="first" ${page===1?'disabled':''}>⏮︎</button>
+        <button data-which="${which}" data-act="prev"  ${page===1?'disabled':''}>◀︎</button>
+        <span class="info">${page} / ${total} 페이지</span>
+        <button data-which="${which}" data-act="next"  ${page===total?'disabled':''}>▶︎</button>
+        <button data-which="${which}" data-act="last"  ${page===total?'disabled':''}>⏭︎</button>
+      `;
+    }
+
+    /* ===== 연간 시즌 범위(전년12~당년11) ===== */
+    function isInLeagueYear(key, year){
+      const y = parseInt(key.slice(0,4), 10);
+      const m = parseInt(key.slice(5), 10);
+      return (y === year-1 && m === 12) || (y === year && m >= 1 && m <= 11);
+    }
+
+    /* ===== 경기 요약 메시지 업데이트 ===== */
+    function updateMatchSummaryMessage(byRound, seasonKey, currentRound) {
+      const messageEl = document.getElementById('matchSummaryMessage');
+      if (!messageEl) return;
+      
+      const season = SEASONS[seasonKey];
+      if (!season) return;
+      
+      const rounds = season.rounds || [];
+      const currentRoundIndex = rounds.findIndex(r => r.code === currentRound);
+      
+      // 현재 라운드의 경기들
+      const currentMatches = byRound[currentRound] || [];
+      
+      // 이전 라운드까지의 모든 경기 결과
+      const previousMatches = [];
+      for (let i = 0; i < currentRoundIndex; i++) {
+        const roundCode = rounds[i].code;
+        if (byRound[roundCode]) {
+          previousMatches.push(...byRound[roundCode]);
+        }
+      }
+      
+      // 현재까지의 모든 경기 결과
+      const allMatches = [...previousMatches, ...currentMatches];
+      
+      // 메시지 배열 생성
+      const messages = [];
+      
+      // 1. 해트트릭 체크
+      currentMatches.forEach(match => {
+        if (match.scorers) {
+          const hatTrickPlayers = parseTokenList(match.scorers, 'goal')
+            .filter(player => player.n >= 3)
+            .map(player => player.name);
+          
+          hatTrickPlayers.forEach(player => {
+            messages.push(`🎯 <strong>${player}</strong>선수가 해트트릭을 달성했습니다!`);
+          });
+        }
+      });
+      
+      // 2. 이번 달 득점 순위 변화 체크
+      if (currentRoundIndex > 0) {
+        const previousMonthRanking = computeContributions(previousMatches);
+        const currentMonthRanking = computeContributions(allMatches);
+        
+        const prevTop = previousMonthRanking[0];
+        const currentTop = currentMonthRanking[0];
+        
+        if (prevTop && currentTop && prevTop.name !== currentTop.name) {
+          messages.push(`📈 <strong>${currentTop.name}</strong>선수가 이번달 득점 순위 1위에 올랐습니다!`);
+        }
+      }
+      
+      // 3. 전체 순위 1위 변화 체크 (연간)
+      const yy = parseInt(seasonKey.slice(0,4), 10);
+      const yearKeys = Object.keys(SEASONS).filter(k => isInLeagueYear(k, yy));
+      const yearMatches = yearKeys.flatMap(k=>Object.values(buildMatches(k)).flat());
+      
+      // 이전 주까지의 연간 순위
+      const previousYearMatches = yearMatches.filter(m => {
+        const matchRound = m.round;
+        const matchRoundIndex = rounds.findIndex(r => r.code === matchRound);
+        return matchRoundIndex < currentRoundIndex;
+      });
+      
+      // 현재까지의 연간 순위
+      const currentYearMatches = yearMatches.filter(m => {
+        const matchRound = m.round;
+        const matchRoundIndex = rounds.findIndex(r => r.code === matchRound);
+        return matchRoundIndex <= currentRoundIndex;
+      });
+      
+      if (previousYearMatches.length > 0) {
+        const prevYearRanking = computeContributions(previousYearMatches);
+        const currentYearRanking = computeContributions(currentYearMatches);
+        
+        const prevYearTop = prevYearRanking[0];
+        const currentYearTop = currentYearRanking[0];
+        
+        if (prevYearTop && currentYearTop && prevYearTop.name !== currentYearTop.name) {
+          messages.push(`🏆 <strong>${currentYearTop.name}</strong>선수가 전체 득점 순위 1위에 올라섭니다!`);
+        }
+      }
+      
+      // 4. 팀 순위 변화 체크
+      if (currentRoundIndex > 0) {
+        const previousStandings = computeTable({[currentRound]: previousMatches});
+        const currentStandings = computeTable({[currentRound]: allMatches});
+        
+        const prevTop = previousStandings[0];
+        const currentTop = currentStandings[0];
+        
+        if (prevTop && currentTop && prevTop.team !== currentTop.team) {
+          messages.push(`⚽ <strong>${currentTop.team}</strong>팀이 이번 주 1위에 올랐습니다!`);
+        }
+      }
+      
+      // 5. 마지막 경기 후 특별 메시지들
+      const isLastRound = currentRoundIndex === rounds.length - 1;
+      if (isLastRound) {
+        // 이번 달 득점 순위 1위
+        const monthRanking = computeContributions(allMatches);
+        if (monthRanking.length > 0) {
+          const monthTop = monthRanking[0];
+          messages.push(`🥇 이번 달 득점 순위 1위는 <strong>${monthTop.name}</strong>선수가 차지했습니다!`);
+        }
+        
+        // 시즌 전체 득점 순위 1위 (월간 마지막 경기에서만)
+        const yy = parseInt(seasonKey.slice(0,4), 10);
+        const yearKeys = Object.keys(SEASONS).filter(k => isInLeagueYear(k, yy));
+        const yearMatches = yearKeys.flatMap(k=>Object.values(buildMatches(k)).flat());
+        const yearRanking = computeContributions(yearMatches);
+        if (yearRanking.length > 0) {
+          const yearTop = yearRanking[0];
+          // 11월이면 시즌 마지막, 아니면 시즌 중
+          const isSeasonEnd = seasonKey.includes('-11');
+          if (isSeasonEnd) {
+            messages.push(`🏆 시즌 전체 득점 순위 1위는 <strong>${yearTop.name}</strong>선수가 차지했습니다!`);
+          } else {
+            messages.push(`🏆 <strong>${yearTop.name}</strong>선수가 시즌 전체 득점 순위 1위를 달리고 있습니다!`);
+          }
+        }
+        
+        // 이번 달 최다 득점 경기
+        const monthGames = allMatches.filter(m => m.hs !== null && m.as !== null);
+        const maxGoals = Math.max(...monthGames.map(m => Math.max(m.hs || 0, m.as || 0)));
+        const highScoringGames = monthGames.filter(m => Math.max(m.hs || 0, m.as || 0) === maxGoals);
+        if (maxGoals >= 3) {
+          highScoringGames.forEach(game => {
+            const winner = game.hs > game.as ? game.home : game.away;
+            const score = game.hs > game.as ? `${game.hs}-${game.as}` : `${game.as}-${game.hs}`;
+            messages.push(`⚡ 이번 달 최다 득점 경기: <strong>${winner}</strong>팀이 ${score}로 대승을 거두었습니다!`);
+          });
+        }
+        
+        // 이번 달 무실점 경기
+        const cleanSheets = monthGames.filter(m => m.hs === 0 || m.as === 0);
+        if (cleanSheets.length > 0) {
+          const cleanSheetTeams = [...new Set(cleanSheets.map(m => m.hs === 0 ? m.away : m.home))];
+          cleanSheetTeams.forEach(team => {
+            const teamCleanSheets = cleanSheets.filter(m => (m.hs === 0 && m.away === team) || (m.as === 0 && m.home === team));
+            if (teamCleanSheets.length >= 2) {
+              messages.push(`🛡️ <strong>${team}</strong>팀이 이번 달 ${teamCleanSheets.length}경기 무실점을 기록했습니다!`);
+            }
+          });
+        }
+        
+        // 이번 달 팀 순위 최종 결과
+        const currentStandings = computeTable({[currentRound]: allMatches});
+        if (currentStandings.length > 0) {
+          const champion = currentStandings[0];
+          const pointsGap = currentStandings[0].PTS - (currentStandings[1]?.PTS || 0);
+          if (pointsGap >= 5) {
+            messages.push(`👑 <strong>${champion.team}</strong>팀이 압도적인 우승을 차지했습니다!`);
+          } else if (pointsGap > 0) {
+            messages.push(`🏆 이번 달은 <strong>${champion.team}</strong>팀이 우승했습니다!`);
+          } else {
+            messages.push(`🤝 이번 달은 <strong>${champion.team}</strong>팀이 1위를 차지했습니다!`);
+          }
+        }
+        
+        // 이번 달 최다 도움
+        const assists = new Map();
+        allMatches.forEach(match => {
+          if (match.assists) {
+            parseTokenList(match.assists, 'assist').forEach(({name, n}) => {
+              assists.set(name, (assists.get(name) || 0) + n);
+            });
+          }
+        });
+        if (assists.size > 0) {
+          const topAssist = [...assists.entries()].sort((a, b) => b[1] - a[1])[0];
+          if (topAssist[1] >= 2) {
+            messages.push(`🎯 이번 달 최다 도움은 <strong>${topAssist[0]}</strong>선수!`);
+          }
+        }
+        
+        // 이번 달 최다 공격포인트
+        if (monthRanking.length > 0) {
+          const topPlayer = monthRanking[0];
+          if (topPlayer.pts >= 5) {
+            messages.push(`⭐ 이번 달 최다 공격포인트는 <strong>${topPlayer.name}</strong>선수!`);
+          }
+        }
+        
+        // 이번 달 팀별 특별 성과
+        currentStandings.forEach((team, index) => {
+          if (index === 0) return; // 1위는 이미 처리됨
+          
+          if (team.GD > 0 && team.GA <= 3) {
+            messages.push(`💪 <strong>${team.team}</strong>팀은 이번 달 강력한 수비력을 보여줬습니다!`);
+          } else if (team.GF >= 10) {
+            messages.push(`🔥 <strong>${team.team}</strong>팀은 이번 달 폭발적인 공격력을 보여줬습니다!`);
+          }
+        });
+      }
+      
+      // 6. 기본 메시지 (변화가 없을 때)
+      if (messages.length === 0) {
+        const currentStandings = computeTable({[currentRound]: allMatches});
+        const firstPlace = currentStandings[0];
+        
+        if (firstPlace) {
+          if (isLastRound) {
+            messages.push(`🏆 이번 달은 <strong>${firstPlace.team}</strong>팀이 우승했습니다!`);
+          } else {
+            messages.push(`⚽ 이번 주는 <strong>${firstPlace.team}</strong>팀이 1위를 달리고 있습니다!`);
+          }
+        }
+      }
+      
+      // 메시지 표시 (첫 번째 메시지만 표시)
+      if (messages.length > 0) {
+        messageEl.innerHTML = messages[0];
+        
+        // 여러 메시지가 있으면 5초마다 무한 순환
+        if (messages.length > 1) {
+          let messageIndex = 0;
+          const messageInterval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % messages.length;
+            messageEl.innerHTML = messages[messageIndex];
+          }, 5000); // 5초로 변경
+          
+          // 인터벌을 전역 변수에 저장하여 나중에 정리할 수 있도록 함
+          window.currentMessageInterval = messageInterval;
+        }
+      }
+    }
+
+    /* ===== 렌더링 ===== */
+    function renderSummary(byRound, seasonKey){
+      const r = getSummaryRound(); summaryT.innerHTML='';
+      if(!r) return;
+      (byRound[r]||[]).forEach(m=>{
+        const tr=document.createElement('tr');
+        const gameCell=`
+          <div class="gamecell">
+            <span class="badges">${teamBadge(m.home,seasonKey)}</span>
+            <span class="vs">vs</span>
+            <span class="badges">${teamBadge(m.away,seasonKey)}</span>
+          </div>`;
+        const score=(m.hs==null||m.as==null)?'<span class="muted">예정</span>':`${m.hs}–${m.as}`;
+        tr.innerHTML=`
+          <td>${m.game_no}</td>
+          <td class="nowrap">${fmtDateSlash(m.date)}</td>
+          <td>${gameCell}</td>
+          <td>${score}</td>
+          <td>${formatScorers(m.scorers??'')}</td>`;
+        summaryT.appendChild(tr);
+      });
+      const rows=computeTable(byRound);
+      standingsT.innerHTML=rows.map((r,i)=>`
+        <tr class="rank-${i+1}">
+          <td>${i+1 === 1 ? '👑 1' : i+1}</td>
+          <td><span class="badge ${teamClassForSeason(r.team,seasonKey)}"><span class="dot"></span>${r.team}</span></td>
+          <td>${r.P}</td><td>${r.W}</td><td>${r.D}</td><td>${r.L}</td>
+          <td>${r.GF}</td><td>${r.GA}</td><td>${r.GD}</td><td><strong>${r.PTS}</strong></td>
+        </tr>`).join('');
+      
+      // 경기 요약 메시지 업데이트
+      updateMatchSummaryMessage(byRound, seasonKey, r);
+    }
+
+    function renderCards(byRound, seasonKey){
+      const active=getActiveRound(); const q=(search.value||'').trim().toLowerCase();
+      grid.innerHTML='';
+      const all=Object.values(byRound).flat()
+        .filter(m=> active==='ALL' || m.round===active)
+        .filter(m=>{
+          if(!q) return true;
+          const text=`${m.round} ${roundToWeek(m.round)} ${m.date} ${m.home} ${m.away} ${m.hs??''}-${m.as??''} ${m.scorers??''}`.toLowerCase();
+          return text.includes(q);
+        });
+
+      all.forEach(m=>{
+        const card=document.createElement('article'); card.className='card';
+        const score=(m.hs==null||m.as==null)?'<span class="muted">예정</span>':`${m.hs}–${m.as}`;
+        const video=m.youtube?`<div class="thumb"><iframe loading="lazy" src="https://www.youtube-nocookie.com/embed/${m.youtube}" title="${roundToWeek(m.round)} ${m.home} ${m.hs}-${m.as} ${m.away}" allowfullscreen></iframe></div>`:'';
+        const scorers=m.scorers?`<p class="meta">득점: ${formatScorers(m.scorers)}</p>`:'';
+        card.innerHTML=`
+          ${video}
+          <h3 class="title">
+            <span class="badges">${teamBadge(m.home,seasonKey)}</span>
+            <span class="score">${score}</span>
+            <span class="badges">${teamBadge(m.away,seasonKey)}</span>
+          </h3>
+          <p class="meta">${m.date} · ${m.game_no}경기</p>
+          ${scorers}
+          ${m.youtube?`<a class="link" href="https://youtu.be/${m.youtube}" target="_blank" rel="noopener">YouTube에서 보기</a>`:''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderRanks(){
+      // 기존 하이라이트 완전 제거
+      document.querySelectorAll('.highlighted-scorer').forEach(el => {
+        el.classList.remove('highlighted-scorer');
+        el.style.backgroundColor = '';
+        el.style.border = '';
+        el.style.borderRadius = '';
+      });
+      
+      /* = 월간(좌) = */
+      const monthKey = rankMonthSel.value;
+      const seasonMatches = Object.values(buildMatches(monthKey)).flat();
+      const leftAll = rankWithTies(
+        computeContributions(seasonMatches),
+        r => `${String(r.pts).padStart(3,'0')}-${String(r.g).padStart(3,'0')}`
+      );
+      const seasonPageSize = parseInt(rankSeasonSizeSel.value, 10) || 20;
+      const left = slicePage(leftAll, rankSeasonPage, seasonPageSize);
+      const leftBody = document.querySelector('#rankSeason tbody');
+      leftBody.innerHTML = left.items.length
+        ? left.items.map(r => `<tr>
+              <td><span class="medal">${medalFor(r.rank)||''}</span> ${r.rank}</td>
+              <td>${r.name}</td><td>${r.g}</td><td>${r.a}</td><td><strong>${r.pts}</strong></td>
+           </tr>`).join('')
+        : `<tr><td colspan="5" class="muted">아직 기록이 없습니다.</td></tr>`;
+      renderPager(document.getElementById('rankSeasonPager'), left.page, left.total, 'season');
+
+      /* = 연간(우) = */
+      const yy = parseInt(rankYearSel.value, 10);
+      const yearKeys = Object.keys(SEASONS).filter(k => isInLeagueYear(k, yy));
+      const yearMatches = yearKeys.flatMap(k=>Object.values(buildMatches(k)).flat());
+      const rightAll = rankWithTies(
+        computeContributions(yearMatches),
+        r => `${String(r.pts).padStart(3,'0')}-${String(r.g).padStart(3,'0')}`
+      );
+      const yearPageSize = parseInt(rankYearSizeSel.value, 10) || 20;
+      const right = slicePage(rightAll, rankYearPage, yearPageSize);
+      const rightBody = document.querySelector('#rankYear tbody');
+      rightBody.innerHTML = right.items.length
+        ? right.items.map(r => `<tr>
+              <td><span class="medal">${medalFor(r.rank)||''}</span> ${r.rank}</td>
+              <td>${r.name}</td><td>${r.g}</td><td>${r.a}</td><td><strong>${r.pts}</strong></td>
+           </tr>`).join('')
+        : `<tr><td colspan="5" class="muted">아직 기록이 없습니다.</td></tr>`;
+      renderPager(document.getElementById('rankYearPager'), right.page, right.total, 'year');
+    }
+
+    /* 페이지네이션 버튼 공용 이벤트(위임) */
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.pager button');
+      if(!btn) return;
+      const which = btn.dataset.which;  // 'season' | 'year'
+      const act = btn.dataset.act;      // 'first' | 'prev' | 'next' | 'last'
+
+      if(which === 'season'){
+        if(act==='first') rankSeasonPage = 1;
+        if(act==='prev')  rankSeasonPage = Math.max(1, rankSeasonPage - 1);
+        if(act==='next')  rankSeasonPage = rankSeasonPage + 1;
+        if(act==='last')  rankSeasonPage = 1e9;
+      }else if(which === 'year'){
+        if(act==='first') rankYearPage = 1;
+        if(act==='prev')  rankYearPage = Math.max(1, rankYearPage - 1);
+        if(act==='next')  rankYearPage = rankYearPage + 1;
+        if(act==='last')  rankYearPage = 1e9;
+      }
+      renderRanks();
+    });
+
+    /* 페이지 크기 변경 시 1페이지로 리셋 */
+    rankSeasonSizeSel.addEventListener('change', ()=>{ rankSeasonPage=1; renderRanks(); });
+    rankYearSizeSel.addEventListener('change', ()=>{ rankYearPage=1; renderRanks(); });
+
+    /* 셀렉터 변경 시 페이지 리셋 */
+    rankMonthSel.addEventListener('change', ()=>{ rankSeasonPage = 1; renderRanks(); });
+    rankYearSel.addEventListener('change',  ()=>{ rankYearPage   = 1; renderRanks(); });
+
+    /* ===== 초기 라운드 자동 활성화 ===== */
+    function activateInitialRounds(seasonKey){
+      const pick = pickRoundForToday(seasonKey);
+      // 요약탭
+      if(pick){
+        const btn = rtabs.querySelector(`.rtab[data-round="${pick}"]`);
+        if(btn){
+          rtabs.querySelectorAll('.rtab').forEach(x=>x.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      }
+      // 영상탭
+      if(pick){
+        const b2 = tabs.querySelector(`.tab[data-round="${pick}"]`);
+        if(b2){
+          tabs.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+          b2.classList.add('active');
+        }
+      }
+    }
+
+    function renderAll(){
+      const key = hplMonthSel.value; // HPL 시즌에서 선택된 월의 키를 직접 사용
+      makeRTabs(key); makeTabs(key);
+      activateInitialRounds(key);           // ← 오늘 기준 자동 활성화
+      const m=buildMatches(key);
+      renderSummary(m,key); renderCards(m,key); renderRanks();
+    }
+
+    // 초기 실행
+    initSelectors(); renderAll();
+
+    // HPL 시즌 이벤트
+    hplYearSel.addEventListener('change', () => {
+      updateHplMonthOptions();
+      renderAll();
+    });
+    hplMonthSel.addEventListener('change', renderAll);
+    tabs.addEventListener('click', e=>{
+      if(e.target.classList.contains('tab')){
+        tabs.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+        e.target.classList.add('active');
+        const key = hplMonthSel.value;
+        renderCards(buildMatches(key), key);
+      }
+    });
+    rtabs.addEventListener('click', e=>{
+      if(e.target.classList.contains('rtab')){
+        rtabs.querySelectorAll('.rtab').forEach(x=>x.classList.remove('active'));
+        e.target.classList.add('active');
+        const key = hplMonthSel.value;
+        renderSummary(buildMatches(key), key);
+      }
+    });
+    // 검색창 이벤트 (득점자 찾기)
+    const searchInput = document.getElementById('search');
+    let searchTimeout;
+    let messageTimeout;
+    
+    searchInput.addEventListener('input', ()=>{
+      const searchValue = searchInput.value.trim();
+      
+      // 기존 타이머들 클리어
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+      if (messageTimeout) {
+        clearTimeout(messageTimeout);
+      }
+      
+      if (searchValue) {
+        // 한글 이름 패턴 확인
+        const isNameSearch = /^[가-힣]+$/.test(searchValue);
+        if (isNameSearch && searchValue.length >= 2) {
+          // 2글자 이상 한글 이름이면 0.5초 후 검색
+          searchTimeout = setTimeout(() => {
+            searchPlayerInRankings(searchValue);
+          }, 500);
+          
+          // 1.5초 후 추가 입력이 없으면 메시지 표시
+          messageTimeout = setTimeout(() => {
+            if (searchInput.value.trim() === searchValue) {
+              showNotFoundMessage();
+            }
+          }, 1500);
+        } else if (isNameSearch && searchValue.length < 2) {
+          // 1글자면 아무것도 하지 않음
+          return;
+        } else {
+          // 한글이 아닌 경우 아무것도 하지 않음
+          return;
+        }
+      } else {
+        // 검색어가 없으면 기존 하이라이트 제거
+        document.querySelectorAll('.highlighted-scorer').forEach(el => {
+          el.classList.remove('highlighted-scorer');
+          el.style.backgroundColor = '';
+          el.style.border = '';
+          el.style.borderRadius = '';
+        });
+      }
+    });
+    
+    // 찾지 못했을 때 메시지 표시 함수
+    const showNotFoundMessage = () => {
+      // 기존 메시지 제거
+      const existingMessage = document.querySelector('.search-message');
+      if (existingMessage) {
+        existingMessage.remove();
+      }
+
+      // 새 메시지 생성
+      const messageEl = document.createElement('div');
+      messageEl.className = 'search-message';
+      messageEl.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: var(--fp-card); color: var(--fp-text); padding: 20px 30px;
+        border: 2px solid var(--fp-accent); border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 10000;
+        font-weight: 700; text-align: center; max-width: 300px;
+      `;
+      messageEl.textContent = '아직 득점 랭킹에 이름이 없어요. 파이팅!';
+      document.body.appendChild(messageEl);
+
+      // 3초 후 메시지 제거
+      setTimeout(() => {
+        if (messageEl.parentNode) {
+          messageEl.remove();
+        }
+      }, 3000);
+    };
+
+    // 아이콘 메뉴 스크롤
+    document.querySelectorAll('.qbtn').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const t = document.querySelector(b.dataset.jump);
+        if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+
+    // 득점자 링크 클릭 이벤트
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('scorer-link')) {
+        e.preventDefault();
+        const scorerName = e.target.dataset.scorer;
+        
+        // 공격포인트 랭킹 섹션으로 스크롤
+        const rankingsSection = document.getElementById('scorersBox');
+        if (rankingsSection) {
+          rankingsSection.scrollIntoView({behavior: 'smooth', block: 'start'});
+          
+          // 해당 선수를 랭킹에서 찾아서 하이라이트
+          setTimeout(() => {
+            highlightScorerInRankings(scorerName);
+          }, 500); // 스크롤 완료 후 실행
+        }
+      }
+    });
+
+    // ⚽ 맨 위로 버튼
+    const toTop=document.getElementById('toTop');
+    function toggleTop(){ if(window.scrollY>400) toTop.classList.add('show'); else toTop.classList.remove('show'); }
+    window.addEventListener('scroll', toggleTop, {passive:true});
+    toggleTop();
+    const goTop = ()=> window.scrollTo({top:0, behavior:'smooth'});
+    toTop.addEventListener('click', goTop);
+    toTop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); goTop(); }});
+  </script>
+</body>
+</html>
