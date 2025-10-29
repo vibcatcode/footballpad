@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "풋볼패드 - 동호회 축구팀 경기 기록 관리",
-  description: "동호회 축구팀을 위한 종합 관리 플랫폼 · 팀 운영 · 경기 기록 · 선수 관리 · 매칭 · 통계",
-  keywords: "축구, 동호회, 팀 관리, 경기 기록, 선수 통계, 매칭, 풋볼패드",
+  title: "FootballPad - 축구 전술, 경기분석, 기술훈련 전문 사이트",
+  description: "축구 전술, 경기분석, 기술훈련, 레슨, 리뷰를 제공하는 축구 전문 사이트 · 포메이션 분석 · 경기 데이터 · 훈련 프로그램",
+  keywords: "축구, 전술, 경기분석, 기술훈련, 레슨, 리뷰, 포메이션, 축구훈련, 풋볼패드",
   authors: [{ name: "FootballPad Team" }],
   openGraph: {
-    title: "풋볼패드 - 동호회 축구팀 경기 기록 관리",
-    description: "동호회 축구팀을 위한 종합 관리 플랫폼",
+    title: "FootballPad - 축구 전술, 경기분석, 기술훈련 전문 사이트",
+    description: "축구 전술, 경기분석, 기술훈련, 레슨, 리뷰를 제공하는 축구 전문 사이트",
     type: "website",
     locale: "ko_KR",
   },

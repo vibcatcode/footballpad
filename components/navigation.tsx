@@ -36,7 +36,7 @@ const navigationItems = [
     icon: Home
   },
   {
-    title: '경기',
+    title: '경기 기록',
     href: '/matches',
     icon: Calendar,
     subItems: [
@@ -47,24 +47,58 @@ const navigationItems = [
     ]
   },
   {
-    title: '선수·스쿼드',
-    href: '/players',
-    icon: User,
+    title: '축구 전술',
+    href: '/tactics',
+    icon: BarChart3,
     subItems: [
-      { title: '선수 명단', href: '/players/roster' },
-      { title: '스쿼드 매트릭스', href: '/players/squad' },
-      { title: '컨디션 관리', href: '/players/condition' },
-      { title: '훈련 이력', href: '/players/training' }
+      { title: '포메이션 분석', href: '/tactics/formations' },
+      { title: '전술 가이드', href: '/tactics/guides' },
+      { title: '상황별 전술', href: '/tactics/situations' },
+      { title: '전술 영상', href: '/tactics/videos' }
     ]
   },
   {
-    title: '매칭',
-    href: '/matchmaking',
+    title: '경기 분석',
+    href: '/analysis',
     icon: Search,
     subItems: [
-      { title: '매칭 찾기', href: '/matchmaking/search' },
-      { title: '팀 ELO', href: '/matchmaking/elo' },
-      { title: '매칭 요청', href: '/matchmaking/requests' }
+      { title: '경기 하이라이트', href: '/analysis/highlights' },
+      { title: '선수 분석', href: '/analysis/players' },
+      { title: '팀 분석', href: '/analysis/teams' },
+      { title: '통계 대시보드', href: '/analysis/stats' }
+    ]
+  },
+  {
+    title: '기술 훈련',
+    href: '/training',
+    icon: Trophy,
+    subItems: [
+      { title: '기본기 훈련', href: '/training/basics' },
+      { title: '개인기술', href: '/training/skills' },
+      { title: '체력 훈련', href: '/training/fitness' },
+      { title: '훈련 계획', href: '/training/plans' }
+    ]
+  },
+  {
+    title: '레슨',
+    href: '/lessons',
+    icon: Users,
+    subItems: [
+      { title: '기초 레슨', href: '/lessons/basic' },
+      { title: '중급 레슨', href: '/lessons/intermediate' },
+      { title: '고급 레슨', href: '/lessons/advanced' },
+      { title: '전문가 팁', href: '/lessons/expert' }
+    ]
+  },
+  {
+    title: '리뷰',
+    href: '/reviews',
+    icon: MessageSquare,
+    subItems: [
+      { title: '장비 리뷰', href: '/reviews/equipment' },
+      { title: '경기 리뷰', href: '/reviews/matches' },
+      { title: '팀 리뷰', href: '/reviews/teams' },
+      { title: '용품 리뷰', href: '/reviews/gear' }
     ]
   },
   {
@@ -72,36 +106,6 @@ const navigationItems = [
     href: 'https://blog.footballpad.org/',
     icon: Newspaper,
     external: true
-  },
-  {
-    title: '커뮤니티',
-    href: '/community',
-    icon: MessageSquare,
-    subItems: [
-      { title: '공지/게시판', href: '/community/board' },
-      { title: '사진/영상', href: '/community/media' }
-    ]
-  },
-  {
-    title: '관리',
-    href: '/admin',
-    icon: Settings,
-    subItems: [
-      { title: '팀 운영', href: '/team', subItems: [
-        { title: '팀 대시보드', href: '/team/dashboard' },
-        { title: '캘린더', href: '/team/calendar' },
-        { title: '출석 체크', href: '/team/attendance' },
-        { title: '회비/정산', href: '/team/billing' }
-      ]},
-      { title: '기록/통계', href: '/stats', subItems: [
-        { title: '팀 기록', href: '/stats/team' },
-        { title: '선수 기록', href: '/stats/players' },
-        { title: '고급 지표', href: '/stats/advanced' },
-        { title: '랭킹 보드', href: '/stats/rankings' }
-      ]},
-      { title: '시스템 설정', href: '/admin/settings' },
-      { title: '사용자 관리', href: '/admin/users' }
-    ]
   }
 ];
 

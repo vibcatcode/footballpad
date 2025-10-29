@@ -2,26 +2,26 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '풋볼패드 - 동호회 축구팀 경기 기록 관리',
-    short_name: '풋볼패드',
-    description: '동호회 축구팀을 위한 종합 관리 플랫폼',
+    name: 'FootballPad - 축구 전술, 경기분석, 기술훈련 전문 사이트',
+    short_name: 'FootballPad',
+    description: '축구 전술, 경기분석, 기술훈련, 레슨, 리뷰를 제공하는 축구 전문 사이트',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#0f172a',
+    theme_color: '#3b82f6',
     orientation: 'portrait',
     scope: '/',
     lang: 'ko',
-    categories: ['sports', 'lifestyle', 'utilities'],
+    categories: ['sports', 'education', 'lifestyle'],
     icons: [
       {
-        src: '/icon-192x192.png',
+        src: '/FootballPad_Icon.png',
         sizes: '192x192',
         type: 'image/png',
         purpose: 'maskable'
       },
       {
-        src: '/icon-512x512.png',
+        src: '/FootballPad_Icon.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable'
@@ -33,21 +33,21 @@ export default function manifest(): MetadataRoute.Manifest {
         short_name: '경기 기록',
         description: '경기 결과를 빠르게 기록하세요',
         url: '/matches/record',
-        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+        icons: [{ src: '/FootballPad_Icon.png', sizes: '192x192' }]
       },
       {
-        name: '출석 체크',
-        short_name: '출석 체크',
-        description: '훈련/경기 출석을 확인하세요',
-        url: '/team/attendance',
-        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+        name: '축구 전술',
+        short_name: '전술',
+        description: '포메이션과 전술을 분석하세요',
+        url: '/tactics',
+        icons: [{ src: '/FootballPad_Icon.png', sizes: '192x192' }]
       },
       {
-        name: '매칭 찾기',
-        short_name: '매칭',
-        description: '상대팀을 찾아보세요',
-        url: '/matchmaking/search',
-        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+        name: '기술 훈련',
+        short_name: '훈련',
+        description: '체계적인 훈련 프로그램을 확인하세요',
+        url: '/training',
+        icons: [{ src: '/FootballPad_Icon.png', sizes: '192x192' }]
       }
     ]
   }
