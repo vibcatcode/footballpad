@@ -36,17 +36,6 @@ const navigationItems = [
     icon: Home
   },
   {
-    title: '팀 운영',
-    href: '/team',
-    icon: Users,
-    subItems: [
-      { title: '팀 대시보드', href: '/team/dashboard' },
-      { title: '캘린더', href: '/team/calendar' },
-      { title: '출석 체크', href: '/team/attendance' },
-      { title: '회비/정산', href: '/team/billing' }
-    ]
-  },
-  {
     title: '경기',
     href: '/matches',
     icon: Calendar,
@@ -66,17 +55,6 @@ const navigationItems = [
       { title: '스쿼드 매트릭스', href: '/players/squad' },
       { title: '컨디션 관리', href: '/players/condition' },
       { title: '훈련 이력', href: '/players/training' }
-    ]
-  },
-  {
-    title: '기록/통계',
-    href: '/stats',
-    icon: BarChart3,
-    subItems: [
-      { title: '팀 기록', href: '/stats/team' },
-      { title: '선수 기록', href: '/stats/players' },
-      { title: '고급 지표', href: '/stats/advanced' },
-      { title: '랭킹 보드', href: '/stats/rankings' }
     ]
   },
   {
@@ -103,6 +81,27 @@ const navigationItems = [
       { title: '공지/게시판', href: '/community/board' },
       { title: '사진/영상', href: '/community/media' }
     ]
+  },
+  {
+    title: '관리',
+    href: '/admin',
+    icon: Settings,
+    subItems: [
+      { title: '팀 운영', href: '/team', subItems: [
+        { title: '팀 대시보드', href: '/team/dashboard' },
+        { title: '캘린더', href: '/team/calendar' },
+        { title: '출석 체크', href: '/team/attendance' },
+        { title: '회비/정산', href: '/team/billing' }
+      ]},
+      { title: '기록/통계', href: '/stats', subItems: [
+        { title: '팀 기록', href: '/stats/team' },
+        { title: '선수 기록', href: '/stats/players' },
+        { title: '고급 지표', href: '/stats/advanced' },
+        { title: '랭킹 보드', href: '/stats/rankings' }
+      ]},
+      { title: '시스템 설정', href: '/admin/settings' },
+      { title: '사용자 관리', href: '/admin/users' }
+    ]
   }
 ];
 
@@ -114,7 +113,7 @@ export function Navigation() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity ml-4">
           <picture>
             <source
               media="(min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2)"
@@ -137,7 +136,7 @@ export function Navigation() {
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 rounded-lg">
+                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 rounded-lg bg-background/80 text-foreground border border-transparent hover:border-border">
                       <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
                       <span className="leading-[1.2]">{item.title}</span>
                     </NavigationMenuTrigger>
@@ -166,7 +165,7 @@ export function Navigation() {
                       <a
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background/80 text-foreground px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105 border border-transparent hover:border-border",
                           pathname === item.href && "bg-accent text-accent-foreground"
                         )}
                       >
@@ -178,7 +177,7 @@ export function Navigation() {
                       <Link
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background/80 text-foreground px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105 border border-transparent hover:border-border",
                           pathname === item.href && "bg-accent text-accent-foreground"
                         )}
                       >
@@ -193,15 +192,6 @@ export function Navigation() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        {/* 관리자 링크 */}
-        <div className="hidden md:flex items-center space-x-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/admin">
-              <Settings className="mr-2 h-4 w-4" />
-              관리
-            </Link>
-          </Button>
-        </div>
 
         {/* 모바일 메뉴 */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -250,14 +240,6 @@ export function Navigation() {
                   )}
                 </div>
               ))}
-              <div className="pt-6 border-t border-border">
-                <Button variant="outline" size="sm" asChild className="w-full hover:bg-accent/50">
-                  <Link href="/admin">
-                    <Settings className="mr-2 h-4 w-4" />
-                    관리
-                  </Link>
-                </Button>
-              </div>
             </div>
           </SheetContent>
         </Sheet>
