@@ -165,8 +165,6 @@ export function Navigation() {
                     {item.external ? (
                       <a
                         href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
                         className={cn(
                           "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
                           pathname === item.href && "bg-accent text-accent-foreground"
@@ -219,8 +217,6 @@ export function Navigation() {
                   {item.external ? (
                     <a
                       href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
                       className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group"
                       onClick={() => setMobileMenuOpen(false)}
                     >
