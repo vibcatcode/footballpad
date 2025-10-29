@@ -38,22 +38,10 @@ export function medalFor(rank: number): string {
 export function computePlayerStats(season: Season): PlayerStats[] {
   const playerMap = new Map<string, PlayerStats>();
   
+  // TODO: MatchEvent에서 득점 정보를 가져와야 함
+  // 현재는 빈 배열 반환
   season.matches.forEach(match => {
-    if (match.scorers) {
-      const scorers = parseTokenList(match.scorers);
-      scorers.forEach(scorer => {
-        const [name, goals] = scorer.split('(');
-        const goalCount = goals ? parseInt(goals.replace(')', '')) : 1;
-        
-        if (!playerMap.has(name)) {
-          playerMap.set(name, { name, goals: 0, assists: 0, points: 0 });
-        }
-        
-        const player = playerMap.get(name)!;
-        player.goals += goalCount;
-        player.points += goalCount;
-      });
-    }
+    // 향후 MatchEvent를 통해 득점 정보 처리
   });
   
   return Array.from(playerMap.values()).sort((a, b) => b.points - a.points);
@@ -81,8 +69,8 @@ export function computeStandings(season: Season, teams: any[]): TeamStats[] {
   // 경기 결과 처리
   season.matches.forEach(match => {
     if (match.homeScore !== null && match.awayScore !== null) {
-      const homeStats = teamMap.get(match.home);
-      const awayStats = teamMap.get(match.away);
+      const homeStats = teamMap.get(match.homeTeamId);
+      const awayStats = teamMap.get(match.awayTeamId);
       
       if (homeStats && awayStats) {
         // 경기 수 증가

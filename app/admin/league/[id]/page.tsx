@@ -82,8 +82,14 @@ function TeamManager({ league, teams, onUpdate }: { league: League; teams: Team[
     
     const newTeam: Team = {
       id: generateId(),
+      clubId: league.id, // 임시로 league.id를 clubId로 사용
       name: teamName,
-      color: teamColor
+      color: teamColor,
+      level: 'intermediate',
+      eloRating: 1200,
+      preferredDays: [],
+      preferredTimes: [],
+      createdAt: new Date().toISOString()
     };
     
     const updatedTeams = [...teams, newTeam];
@@ -121,7 +127,9 @@ function TeamManager({ league, teams, onUpdate }: { league: League; teams: Team[
     red: 'bg-red-700 text-white',
     green: 'bg-green-700 text-white',
     yellow: 'bg-yellow-600 text-white',
-    purple: 'bg-purple-700 text-white'
+    purple: 'bg-purple-700 text-white',
+    black: 'bg-black text-white',
+    orange: 'bg-orange-600 text-white'
   };
 
   return (
@@ -154,7 +162,7 @@ function TeamManager({ league, teams, onUpdate }: { league: League; teams: Team[
             <div>
               <label className="block mb-2 text-sm text-[#9aa7b8]">팀 색상</label>
               <div className="grid grid-cols-3 gap-2">
-                {(['white', 'blue', 'red', 'green', 'yellow', 'purple'] as Team['color'][]).map(color => (
+                {(['white', 'blue', 'red', 'green', 'yellow', 'purple', 'black', 'orange'] as Team['color'][]).map(color => (
                   <button
                     key={color}
                     onClick={() => setTeamColor(color)}
@@ -220,12 +228,24 @@ function SeasonManager({ league, seasons, teams, onUpdate }: { league: League; s
     
     const newSeason: Season = {
       id: generateId(),
-      leagueId: league.id,
-      label: seasonLabel,
-      yearMonth,
-      teamColors: {},
+      clubId: league.id, // 임시로 league.id를 clubId로 사용
+      name: seasonLabel,
+      type: 'league',
+      startDate: yearMonth + '-01',
+      endDate: yearMonth + '-31',
+      status: 'upcoming',
+      teams: [],
       rounds: [],
-      matches: []
+      matches: [],
+      settings: {
+        pointsForWin: 3,
+        pointsForDraw: 1,
+        maxPlayersPerTeam: 11,
+        allowSubstitutions: true,
+        extraTime: false,
+        penalties: false
+      },
+      createdAt: new Date().toISOString()
     };
     
     const updatedSeasons = [...seasons, newSeason];
@@ -300,8 +320,8 @@ function SeasonManager({ league, seasons, teams, onUpdate }: { league: League; s
         {seasons.map(season => (
           <div key={season.id} className="bg-[#0f1520] border border-[#1e2633] rounded-lg p-4 flex justify-between items-center">
             <div>
-              <h3 className="font-bold">{season.label}</h3>
-              <p className="text-sm text-[#9aa7b8]">{season.yearMonth}</p>
+              <h3 className="font-bold">{season.name}</h3>
+              <p className="text-sm text-[#9aa7b8]">{season.startDate}</p>
             </div>
             <a
               href={`/admin/season/${season.id}`}

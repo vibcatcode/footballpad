@@ -1,0 +1,54 @@
+import { MetadataRoute } from 'next'
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: '풋볼패드 - 동호회 축구팀 경기 기록 관리',
+    short_name: '풋볼패드',
+    description: '동호회 축구팀을 위한 종합 관리 플랫폼',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#ffffff',
+    theme_color: '#0f172a',
+    orientation: 'portrait',
+    scope: '/',
+    lang: 'ko',
+    categories: ['sports', 'lifestyle', 'utilities'],
+    icons: [
+      {
+        src: '/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+        purpose: 'maskable'
+      },
+      {
+        src: '/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable'
+      }
+    ],
+    shortcuts: [
+      {
+        name: '경기 기록',
+        short_name: '경기 기록',
+        description: '경기 결과를 빠르게 기록하세요',
+        url: '/matches/record',
+        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+      },
+      {
+        name: '출석 체크',
+        short_name: '출석 체크',
+        description: '훈련/경기 출석을 확인하세요',
+        url: '/team/attendance',
+        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+      },
+      {
+        name: '매칭 찾기',
+        short_name: '매칭',
+        description: '상대팀을 찾아보세요',
+        url: '/matchmaking/search',
+        icons: [{ src: '/icon-192x192.png', sizes: '192x192' }]
+      }
+    ]
+  }
+}

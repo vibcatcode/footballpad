@@ -54,11 +54,11 @@ export default function SeasonAdminPage() {
 
   const saveSeason = (updatedSeason: Season) => {
     if (!season) return;
-    const seasonsData = (typeof window !== 'undefined' && localStorage.getItem(`seasons_${season.leagueId}`))
-      ? JSON.parse(localStorage.getItem(`seasons_${season.leagueId}`)!)
+    const seasonsData = (typeof window !== 'undefined' && localStorage.getItem(`seasons_${season.clubId}`))
+      ? JSON.parse(localStorage.getItem(`seasons_${season.clubId}`)!)
       : [];
     const updated = seasonsData.map((s: Season) => s.id === updatedSeason.id ? updatedSeason : s);
-    localStorage.setItem(`seasons_${season.leagueId}`, JSON.stringify(updated));
+    localStorage.setItem(`seasons_${season.clubId}`, JSON.stringify(updated));
     setSeason(updatedSeason);
   };
 
@@ -69,7 +69,7 @@ export default function SeasonAdminPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{season.label}</h1>
+            <h1 className="text-3xl font-bold mb-2">{season.name}</h1>
             <p className="text-[#9aa7b8]">시즌 관리</p>
           </div>
           <button
@@ -192,14 +192,19 @@ function MatchManager({ season, teams, onUpdate }: { season: Season; teams: Team
     
     const newMatch: Match = {
       id: generateId(),
+      seasonId: season.id,
       round: matchRound,
       game_no: gameNo,
-      home: matchHome,
-      away: matchAway,
+      homeTeamId: matchHome,
+      awayTeamId: matchAway,
       homeScore: matchHomeScore,
       awayScore: matchAwayScore,
+      status: 'scheduled',
+      scheduledAt: new Date().toISOString(),
       youtube: matchYoutube || undefined,
-      scorers: matchScorers || undefined
+      highlights: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     
     const updatedSeason: Season = {
@@ -340,14 +345,11 @@ function MatchManager({ season, teams, onUpdate }: { season: Season; teams: Team
                 <div key={match.id} className="bg-[#121821] border border-[#1e2633] rounded-lg p-4 flex justify-between items-center">
                   <div className="flex gap-4">
                     <span className="text-[#9aa7b8]">{match.game_no}경기</span>
-                    <span>{getTeamName(match.home)}</span>
+                    <span>{getTeamName(match.homeTeamId)}</span>
                     <span className="text-[#9aa7b8]">vs</span>
-                    <span>{getTeamName(match.away)}</span>
+                    <span>{getTeamName(match.awayTeamId)}</span>
                     {match.homeScore !== null && match.awayScore !== null && (
                       <span className="font-bold">{match.homeScore} - {match.awayScore}</span>
-                    )}
-                    {match.scorers && (
-                      <span className="text-sm text-[#9aa7b8]">득점: {match.scorers}</span>
                     )}
                   </div>
                   <button

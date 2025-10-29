@@ -130,7 +130,7 @@ function LeagueView({
     if (selectedRound !== 'ALL' && m.round !== selectedRound) return false;
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    const text = `${m.round} ${roundToWeek(m.round)} ${getTeamName(m.home)} ${getTeamName(m.away)} ${m.homeScore ?? ''}-${m.awayScore ?? ''} ${m.scorers ?? ''}`.toLowerCase();
+    const text = `${m.round} ${roundToWeek(m.round)} ${getTeamName(m.homeTeamId)} ${getTeamName(m.awayTeamId)} ${m.homeScore ?? ''}-${m.awayScore ?? ''}`.toLowerCase();
     return text.includes(query);
   });
 
@@ -159,7 +159,7 @@ function LeagueView({
                     </SelectTrigger>
                     <SelectContent>
                       {seasons.map(s => (
-                        <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -208,7 +208,7 @@ function LeagueView({
                           ? `${match.homeScore} - ${match.awayScore}`
                           : <span className="text-muted-foreground">예정</span>}
                       </TableCell>
-                      <TableCell className="text-center text-sm">{match.scorers || '-'}</TableCell>
+                      <TableCell className="text-center text-sm">-</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -312,14 +312,11 @@ function LeagueView({
                       </div>
                     )}
                     <h3 className="text-lg font-bold mb-2">
-                      {getTeamName(match.home)} {match.homeScore !== null && match.awayScore !== null ? `${match.homeScore} - ${match.awayScore}` : 'vs'} {getTeamName(match.away)}
+                      {getTeamName(match.homeTeamId)} {match.homeScore !== null && match.awayScore !== null ? `${match.homeScore} - ${match.awayScore}` : 'vs'} {getTeamName(match.awayTeamId)}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-2">
                       {season.rounds.find(r => r.code === match.round)?.date} · {match.game_no}경기
                     </p>
-                    {match.scorers && (
-                      <p className="text-sm text-muted-foreground mb-3">득점: {match.scorers}</p>
-                    )}
                     {match.youtube && (
                       <Button
                         variant="outline"
