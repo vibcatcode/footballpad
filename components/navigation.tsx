@@ -108,7 +108,7 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* 로고 */}
         <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity ml-4">
@@ -129,13 +129,13 @@ export function Navigation() {
 
         {/* 데스크톱 네비게이션 */}
         <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList className="space-x-1">
+          <NavigationMenuList className="space-x-0.5">
             {navigationItems.map((item) => (
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 rounded-lg bg-background/80 text-foreground border border-transparent hover:border-border">
-                      <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200">
+                      <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                       <span className="leading-[1.2]">{item.title}</span>
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -163,11 +163,11 @@ export function Navigation() {
                       <a
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background/80 text-foreground px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105 border border-transparent hover:border-border",
-                          pathname === item.href && "bg-accent text-accent-foreground"
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
+                          pathname === item.href && "bg-gray-100 text-gray-900"
                         )}
                       >
-                        <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                        <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                         <span className="leading-[1.2]">{item.title}</span>
                         <ExternalLink className="ml-1 h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       </a>
@@ -175,11 +175,11 @@ export function Navigation() {
                       <Link
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background/80 text-foreground px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105 border border-transparent hover:border-border",
-                          pathname === item.href && "bg-accent text-accent-foreground"
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
+                          pathname === item.href && "bg-gray-100 text-gray-900"
                         )}
                       >
-                        <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                        <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                         <span className="leading-[1.2]">{item.title}</span>
                       </Link>
                     )}
@@ -194,7 +194,7 @@ export function Navigation() {
         {/* 모바일 메뉴 */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="md:hidden hover:bg-accent/50">
+            <Button variant="ghost" size="sm" className="md:hidden hover:bg-gray-100 text-gray-700">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
