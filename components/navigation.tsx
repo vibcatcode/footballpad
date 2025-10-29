@@ -111,7 +111,7 @@ export function Navigation() {
     <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity ml-4">
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity ml-8">
           <picture>
             <source
               media="(min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2)"
@@ -169,7 +169,6 @@ export function Navigation() {
                       >
                         <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                         <span className="leading-[1.2]">{item.title}</span>
-                        <ExternalLink className="ml-1 h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       </a>
                     ) : (
                       <Link
