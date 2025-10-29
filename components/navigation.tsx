@@ -134,7 +134,7 @@ export function Navigation() {
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200">
+                    <NavigationMenuTrigger className="flex h-10 min-h-[40px] max-h-[40px] px-3 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200 items-center">
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                       <span className="leading-[1.2]">{item.title}</span>
                     </NavigationMenuTrigger>
