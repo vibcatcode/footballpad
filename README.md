@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 풋볼패드 - 동호회 축구팀 경기 기록 관리
 
-## Getting Started
+동호회 축구팀의 경기 기록을 관리할 수 있는 웹 애플리케이션입니다.
 
-First, run the development server:
+## 주요 기능
 
+- **리그 관리**: 여러 리그 생성 및 관리
+- **팀 관리**: 팀 추가/삭제, 색상 설정
+- **시즌 관리**: 월별 시즌 생성 및 라운드 관리
+- **경기 결과 입력**: 스코어, 득점자, YouTube 동영상 링크
+- **자동 순위표**: 경기 결과에 따른 자동 순위 계산
+- **득점/도움 랭킹**: 선수별 득점, 도움, 공격포인트 통계
+- **경기 동영상**: YouTube 동영상 통합 재생
+- **검색 기능**: 선수 이름으로 랭킹 검색
+
+## 기술 스택
+
+- **Next.js 16** (App Router)
+- **TypeScript**
+- **Tailwind CSS**
+- **LocalStorage** (데이터 저장)
+
+## 시작하기
+
+1. 의존성 설치:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 개발 서버 실행:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. 브라우저에서 [http://localhost:3000](http://localhost:3000) 열기
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 사용 방법
 
-## Learn More
+### 1. 리그 생성
+- 메인 페이지에서 "새 리그 만들기" 클릭
+- 리그 이름과 설명 입력
+- 생성된 리그 선택
 
-To learn more about Next.js, take a look at the following resources:
+### 2. 팀 추가
+- 리그 관리 페이지에서 "팀 추가" 클릭
+- 팀 이름과 색상 선택
+- 팀 추가 완료
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. 시즌 생성
+- 리그 관리 페이지에서 "시즌 추가" 클릭
+- 시즌 이름 (예: "2025년 1월")과 연도-월 (예: "2025-01") 입력
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. 라운드 추가
+- 시즌 관리 페이지로 이동
+- 라운드 코드 (예: R1, R2)와 경기일 입력
+- 라운드 추가 완료
 
-## Deploy on Vercel
+### 5. 경기 결과 입력
+- 시즌 관리 페이지에서 경기 정보 입력
+- 홈/어웨이 팀, 스코어, 득점자, YouTube ID 입력
+- 경기 추가 완료
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 6. 리그 보기
+- 리그 보기 페이지에서 순위표, 경기 동영상, 선수 랭킹 확인
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 데이터 저장
+
+모든 데이터는 브라우저의 LocalStorage에 저장됩니다. 
+데이터를 백업하려면 브라우저 개발자 도구의 Application > Local Storage에서 데이터를 복사하세요.
+
+## 라이센스
+
+이 프로젝트는 자유롭게 사용할 수 있습니다.
