@@ -89,12 +89,12 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-blue-600/10 dark:from-green-600/20 dark:to-blue-600/20" />
         <div className="relative container mx-auto px-4 py-20">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-green-600 via-blue-600 to-green-800 bg-clip-text text-transparent">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-green-700 via-blue-700 to-green-900 bg-clip-text text-transparent">
               FootballPad
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 leading-relaxed">
               리그 관리, 경기 기록, 팀 관리, 전술 분석까지<br />
-              <span className="font-semibold text-foreground">축구 리그 관리의 모든 것</span>
+              <span className="font-semibold text-gray-900 dark:text-white">축구 리그 관리의 모든 것</span>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="text-lg px-8 py-6">
@@ -103,7 +103,7 @@ export default function Home() {
                   리그 만들기
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
+              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400">
                 <Link href="/leagues">
                   <Trophy className="w-5 h-5 mr-2" />
                   리그 둘러보기
@@ -135,8 +135,8 @@ export default function Home() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">축구 리그 관리의 모든 것</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">축구 리그 관리의 모든 것</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
               리그 생성부터 경기 관리, 팀 운영, 전술 분석까지 축구 리그에 필요한 모든 기능을 제공합니다
             </p>
           </div>

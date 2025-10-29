@@ -128,66 +128,47 @@ export function Navigation() {
         </Link>
 
         {/* 데스크톱 네비게이션 */}
-        <NavigationMenu className="hidden md:flex flex-1 justify-center">
-          <NavigationMenuList className="space-x-1">
+        <div className="hidden md:flex flex-1 justify-center">
+          <div className="flex items-center space-x-1">
             {navigationItems.map((item) => (
-              <NavigationMenuItem key={item.title}>
+              <div key={item.title} className="relative group">
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="flex h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 rounded-md bg-white text-gray-700 border border-transparent hover:border-gray-200 items-center">
+                    <button className="flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200">
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
-                      <span className="leading-[1.2]">{item.title}</span>
-                    </NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                        {item.subItems.map((subItem) => (
-                          <li key={subItem.title}>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                href={subItem.href}
-                                className="block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-all duration-200 hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground group"
-                              >
-                                <div className="text-sm font-medium leading-none group-hover:translate-x-1 transition-transform duration-200">
-                                  {subItem.title}
-                                </div>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
+                      <span>{item.title}</span>
+                    </button>
+                    {/* 드롭다운 메뉴는 나중에 구현 */}
                   </>
                 ) : (
-                  <NavigationMenuLink asChild>
-                    {item.external ? (
-                      <a
-                        href={item.href}
-                        className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
-                          pathname === item.href && "bg-gray-100 text-gray-900"
-                        )}
-                      >
-                        <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
-                        <span className="leading-[1.2]">{item.title}</span>
-                      </a>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-md bg-white text-gray-700 px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 border border-transparent hover:border-gray-200",
-                          pathname === item.href && "bg-gray-100 text-gray-900"
-                        )}
-                      >
-                        <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
-                        <span className="leading-[1.2]">{item.title}</span>
-                      </Link>
-                    )}
-                  </NavigationMenuLink>
+                  item.external ? (
+                    <a
+                      href={item.href}
+                      className={cn(
+                        "flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200",
+                        pathname === item.href && "bg-gray-100 text-gray-900"
+                      )}
+                    >
+                      <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200",
+                        pathname === item.href && "bg-gray-100 text-gray-900"
+                      )}
+                    >
+                      <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
+                      <span>{item.title}</span>
+                    </Link>
+                  )
                 )}
-              </NavigationMenuItem>
+              </div>
             ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+          </div>
+        </div>
 
 
         {/* 모바일 메뉴 */}
