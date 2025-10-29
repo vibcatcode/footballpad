@@ -114,9 +114,20 @@ export function Navigation() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* 로고 */}
-        <Link href="/" className="flex items-center space-x-2">
-          <Trophy className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold">풋볼패드</span>
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <picture>
+            <source
+              media="(min-resolution: 2dppx), (-webkit-min-device-pixel-ratio: 2)"
+              srcSet="/FootballPad-logo@2x.png"
+            />
+            <img
+              src="/FootballPad-logo.png"
+              alt="풋볼패드"
+              className="h-8 w-auto"
+              width={120}
+              height={32}
+            />
+          </picture>
         </Link>
 
         {/* 데스크톱 네비게이션 */}
@@ -126,9 +137,9 @@ export function Navigation() {
               <NavigationMenuItem key={item.title}>
                 {item.subItems ? (
                   <>
-                    <NavigationMenuTrigger className="h-10 px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 rounded-lg">
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {item.title}
+                    <NavigationMenuTrigger className="h-10 min-h-[40px] max-h-[40px] px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 rounded-lg">
+                      <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="leading-[1.2]">{item.title}</span>
                     </NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
@@ -157,24 +168,24 @@ export function Navigation() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={cn(
-                          "group inline-flex h-10 w-max items-center justify-center rounded-lg bg-background px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
                           pathname === item.href && "bg-accent text-accent-foreground"
                         )}
                       >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {item.title}
-                        <ExternalLink className="ml-1 h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                        <span className="leading-[1.2]">{item.title}</span>
+                        <ExternalLink className="ml-1 h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity flex-shrink-0" />
                       </a>
                     ) : (
                       <Link
                         href={item.href}
                         className={cn(
-                          "group inline-flex h-10 w-max items-center justify-center rounded-lg bg-background px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
+                          "group inline-flex h-10 min-h-[40px] max-h-[40px] w-max items-center justify-center rounded-lg bg-background px-4 py-0 text-sm font-medium leading-[1.2] transition-all duration-200 hover:bg-accent/50 hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 hover:scale-105",
                           pathname === item.href && "bg-accent text-accent-foreground"
                         )}
                       >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {item.title}
+                        <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                        <span className="leading-[1.2]">{item.title}</span>
                       </Link>
                     )}
                   </NavigationMenuLink>
