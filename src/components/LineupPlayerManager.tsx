@@ -9,10 +9,11 @@ import toast from 'react-hot-toast';
 const POSITIONS = ['GK', 'DF', 'MF', 'FW'];
 
 export function LineupPlayerManager() {
-  const { players, addPlayer, removePlayer, selectedPlayerId, selectedTeamId } = useLineupBuilderStore();
+  const { players, addPlayer, removePlayer, updatePlayer, selectedPlayerId, selectedTeamId } = useLineupBuilderStore();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const [role, setRole] = useState('');
+  const [editingPlayerId, setEditingPlayerId] = useState<string | null>(null);
 
   const handleAdd = () => {
     if (!name.trim() || !number.trim() || !role.trim()) {
@@ -103,7 +104,7 @@ export function LineupPlayerManager() {
         {players.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">선수를 추가하세요</p>
+            <p className="text-sm">포메이션을 선택하세요</p>
           </div>
         ) : (
           players.map((player) => (
@@ -115,13 +116,32 @@ export function LineupPlayerManager() {
                   : 'border-gray-200 bg-white'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-800">{player.number}</span>
-                  <span className="text-gray-700">{player.name}</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-1">
+                  <span className="font-bold text-gray-800 w-6">{player.number}</span>
+                  {editingPlayerId === player.player_id ? (
+                    <input
+                      autoFocus
+                      className="flex-1 px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                      placeholder="이름"
+                      value={player.name}
+                      onChange={(e) => updatePlayer(player.player_id, { name: e.target.value })}
+                      onBlur={() => setEditingPlayerId(null)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') setEditingPlayerId(null);
+                      }}
+                    />
+                  ) : (
+                    <span 
+                      className="text-gray-700 flex-1 cursor-pointer hover:text-green-600 transition-colors"
+                      onClick={() => setEditingPlayerId(player.player_id)}
+                    >
+                      {player.name || '이름을 입력하세요'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded whitespace-nowrap">
                     {player.role}
                   </span>
                   <button
