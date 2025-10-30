@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Lineup, LineupPlayer } from '../types/lineup';
-import { supabase } from '../lib/supabaseClient';
+import { supabase } from '@/lib/supabase';
 
 // 0~1 비율 좌표 프리셋 (GK 포함 최대 11명 순서대로)
 const FORMATION_PRESETS: Record<string, Array<{ x: number; y: number }>> = {

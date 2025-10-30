@@ -1,8 +1,8 @@
 import React from 'react';
-import { FieldCanvas } from '../../components/FieldCanvas';
-import { PlayerCard } from '../../components/PlayerCard';
-import { Toolbar } from '../../components/Toolbar';
-import { TeamManager } from '../../components/TeamManager';
+import { FieldCanvas } from '@/src/components/FieldCanvas';
+import { PlayerCard } from '@/src/components/PlayerCard';
+import { Toolbar } from '@/src/components/Toolbar';
+import { TeamManager } from '@/src/components/TeamManager';
 
 export default function BuilderPage() {
   return (
