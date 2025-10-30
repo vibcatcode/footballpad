@@ -19,7 +19,7 @@ const playerRankings = [
     position: 1,
     name: '김민수',
     team: 'FC 서울',
-    position: '공격수',
+    playerPosition: '공격수',
     goals: 15,
     assists: 8,
     rating: 4.8,
@@ -29,7 +29,7 @@ const playerRankings = [
     position: 2,
     name: '박지훈',
     team: '수원 삼성',
-    position: '미드필더',
+    playerPosition: '미드필더',
     goals: 5,
     assists: 12,
     rating: 4.6,
@@ -39,7 +39,7 @@ const playerRankings = [
     position: 3,
     name: '이준호',
     team: '전북 현대',
-    position: '수비수',
+    playerPosition: '수비수',
     goals: 2,
     assists: 3,
     rating: 4.4,
@@ -49,7 +49,7 @@ const playerRankings = [
     position: 4,
     name: '최영수',
     team: '울산 현대',
-    position: '공격수',
+    playerPosition: '공격수',
     goals: 12,
     assists: 6,
     rating: 4.3,
@@ -59,7 +59,7 @@ const playerRankings = [
     position: 5,
     name: '정민호',
     team: '포항 스틸러스',
-    position: '미드필더',
+    playerPosition: '미드필더',
     goals: 8,
     assists: 10,
     rating: 4.2,
@@ -189,7 +189,7 @@ export default function RankingsPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg">{player.name}</h3>
-                      <p className="text-sm text-muted-foreground">{player.team} • {player.position}</p>
+                      <p className="text-sm text-muted-foreground">{player.team} • {player.playerPosition}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-6">
