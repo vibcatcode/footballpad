@@ -42,6 +42,10 @@ export function AuthForm() {
           setError(error.message);
         } else {
           setSuccess('로그인되었습니다!');
+          // 로그인 성공 시 대시보드로 리다이렉트
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1000);
         }
       }
     } catch (err) {

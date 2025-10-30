@@ -202,7 +202,7 @@ export function Navigation() {
           {user ? (
             <div className="relative group">
               <button className="flex items-center space-x-2 px-3 py-2 rounded-md bg-accent/50 hover:bg-accent transition-colors">
-                <User className="h-4 w-4" />
+                <User className="h-4 w-4 text-foreground dark:text-foreground" />
                 <span className="text-sm font-medium">{user.user_metadata?.username || user.email}</span>
               </button>
               
@@ -213,14 +213,14 @@ export function Navigation() {
                     href="/dashboard"
                     className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
                   >
-                    <Settings className="mr-2 h-4 w-4" />
+                    <Settings className="mr-2 h-4 w-4 text-foreground dark:text-foreground" />
                     대시보드
                   </Link>
                   <button
                     onClick={signOut}
                     className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
                   >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2 h-4 w-4 text-foreground dark:text-foreground" />
                     로그아웃
                   </button>
                 </div>
@@ -263,9 +263,9 @@ export function Navigation() {
                           className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <item.icon className="h-5 w-5 text-foreground" />
+                          <item.icon className="h-5 w-5 text-foreground dark:text-foreground" />
                           <span className="font-medium text-foreground">{item.title}</span>
-                          <ExternalLink className="ml-auto h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity text-foreground" />
+                          <ExternalLink className="ml-auto h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity text-foreground dark:text-foreground" />
                         </a>
                       ) : (
                         <Link
@@ -273,7 +273,7 @@ export function Navigation() {
                           className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <item.icon className="h-5 w-5 text-foreground" />
+                          <item.icon className="h-5 w-5 text-foreground dark:text-foreground" />
                           <span className="font-medium text-foreground">{item.title}</span>
                         </Link>
                       )}
@@ -305,7 +305,7 @@ export function Navigation() {
                         className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <Settings className="h-5 w-5 text-foreground" />
+                        <Settings className="h-5 w-5 text-foreground dark:text-foreground" />
                         <span className="font-medium text-foreground">대시보드</span>
                       </Link>
                       <button
@@ -315,7 +315,7 @@ export function Navigation() {
                         }}
                         className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground w-full"
                       >
-                        <LogOut className="h-5 w-5 text-foreground" />
+                        <LogOut className="h-5 w-5 text-foreground dark:text-foreground" />
                         <span className="font-medium text-foreground">로그아웃</span>
                       </button>
                     </div>
@@ -326,7 +326,7 @@ export function Navigation() {
                         className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <User className="h-5 w-5 text-foreground" />
+                        <User className="h-5 w-5 text-foreground dark:text-foreground" />
                         <span className="font-medium text-foreground">로그인</span>
                       </Link>
                       <Link
@@ -334,7 +334,7 @@ export function Navigation() {
                         className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        <User className="h-5 w-5 text-foreground" />
+                        <User className="h-5 w-5 text-foreground dark:text-foreground" />
                         <span className="font-medium text-foreground">회원가입</span>
                       </Link>
                     </div>
