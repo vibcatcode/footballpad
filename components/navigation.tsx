@@ -28,6 +28,7 @@ import {
   User,
   ExternalLink
 } from 'lucide-react';
+import { ThemeToggle, ThemeToggleMobile } from '@/components/theme-toggle';
 
 const navigationItems = [
   {
@@ -108,7 +109,7 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
       <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-6">
         {/* 로고 */}
         <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
@@ -134,7 +135,7 @@ export function Navigation() {
               <div key={item.title} className="relative group">
                 {item.subItems ? (
                   <>
-                    <button className="flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200">
+                    <button className="flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200">
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                       <span>{item.title}</span>
                     </button>
@@ -145,8 +146,8 @@ export function Navigation() {
                     <a
                       href={item.href}
                       className={cn(
-                        "flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200",
-                        pathname === item.href && "bg-gray-100 text-gray-900"
+                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200",
+                        pathname === item.href && "bg-accent text-accent-foreground"
                       )}
                     >
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
@@ -156,8 +157,8 @@ export function Navigation() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center h-10 px-4 text-sm font-medium text-gray-700 bg-white rounded-md border border-transparent hover:bg-gray-100 hover:border-gray-200 transition-all duration-200",
-                        pathname === item.href && "bg-gray-100 text-gray-900"
+                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200",
+                        pathname === item.href && "bg-accent text-accent-foreground"
                       )}
                     >
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
@@ -170,54 +171,67 @@ export function Navigation() {
           </div>
         </div>
 
+        {/* 데스크톱 테마 토글 */}
+        <div className="hidden md:flex items-center">
+          <ThemeToggle />
+        </div>
+
 
         {/* 모바일 메뉴 */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
-            <Button variant="ghost" size="sm" className="md:hidden hover:bg-gray-100 text-gray-700">
+            <Button variant="ghost" size="sm" className="md:hidden hover:bg-accent text-foreground">
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <div className="flex flex-col space-y-2 mt-6">
-              {navigationItems.map((item) => (
-                <div key={item.title}>
-                  {item.external ? (
-                    <a
-                      href={item.href}
-                      className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-medium">{item.title}</span>
-                      <ExternalLink className="ml-auto h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity" />
-                    </a>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-medium">{item.title}</span>
-                    </Link>
-                  )}
-                  {item.subItems && (
-                    <div className="ml-8 space-y-1">
-                      {item.subItems.map((subItem) => (
-                        <Link
-                          key={subItem.title}
-                          href={subItem.href}
-                          className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/30 rounded-md transition-all duration-200"
+          <SheetContent side="right" className="w-[300px] sm:w-[400px] p-0">
+            <div className="flex flex-col h-full">
+              {/* 테마 토글 섹션 */}
+              <ThemeToggleMobile />
+              
+              {/* 네비게이션 메뉴 */}
+              <div className="flex-1 overflow-y-auto px-4 py-4">
+                <div className="space-y-2">
+                  {navigationItems.map((item) => (
+                    <div key={item.title}>
+                      {item.external ? (
+                        <a
+                          href={item.href}
+                          className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          {subItem.title}
+                          <item.icon className="h-5 w-5 text-foreground" />
+                          <span className="font-medium text-foreground">{item.title}</span>
+                          <ExternalLink className="ml-auto h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity text-foreground" />
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <item.icon className="h-5 w-5 text-foreground" />
+                          <span className="font-medium text-foreground">{item.title}</span>
                         </Link>
-                      ))}
+                      )}
+                      {item.subItems && (
+                        <div className="ml-8 space-y-1">
+                          {item.subItems.map((subItem) => (
+                            <Link
+                              key={subItem.title}
+                              href={subItem.href}
+                              className="block px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-accent/30 rounded-md transition-all duration-200"
+                              onClick={() => setMobileMenuOpen(false)}
+                            >
+                              {subItem.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </SheetContent>
         </Sheet>

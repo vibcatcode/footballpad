@@ -65,6 +65,20 @@
   }
 }
 
+.light {
+  --fp-bg: #f8fafc;
+  --fp-card: #ffffff;
+  --fp-text: #0f172a;
+  --fp-muted: #64748b;
+  --fp-border: #e2e8f0;
+  --fp-accent: #059669;
+  --tab-bg: #ffffff;
+  --tab-text: #0f172a;
+  --hi-gold: rgba(255, 215, 0, .16);
+  --hi-silver: rgba(192, 192, 192, .14);
+  --hi-bronze: rgba(205, 127, 50, .14);
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -147,6 +161,19 @@ body {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  
+  /* FootballPad 다크모드 색상 개선 */
+  --fp-bg: #0b0f14;
+  --fp-card: #121821;
+  --fp-text: #f1f5f9;
+  --fp-muted: #94a3b8;
+  --fp-accent: #00d18f;
+  --fp-border: #1e2633;
+  --tab-bg: #0f1520;
+  --tab-text: #f1f5f9;
+  --hi-gold: rgba(255, 215, 0, .08);
+  --hi-silver: rgba(192, 192, 192, .08);
+  --hi-bronze: rgba(205, 127, 50, .08);
 }
 
 @layer base {
