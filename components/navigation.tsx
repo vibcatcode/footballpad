@@ -67,6 +67,16 @@ const navigationItems = [
     ]
   },
   {
+    title: '선수',
+    href: '/players',
+    icon: User,
+    subItems: [
+      { title: '선수 목록', href: '/players' },
+      { title: '선수 등록', href: '/players/create' },
+      { title: '선수 관리', href: '/players/manage' }
+    ]
+  },
+  {
     title: '전술',
     href: '/tactics',
     icon: BarChart3,
@@ -83,7 +93,7 @@ const navigationItems = [
     subItems: [
       { title: '리그 순위', href: '/reports/standings' },
       { title: '선수 랭킹', href: '/reports/rankings' },
-      { title: '경기 리포트', href: '/reports/matches' }
+      { title: '경기 리포트', href: '/reports' }
     ]
   },
   {
