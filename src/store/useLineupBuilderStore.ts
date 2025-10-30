@@ -24,10 +24,29 @@ const FORMATION_PRESETS: Record<string, Array<{ x: number; y: number }>> = {
   ],
 };
 
+interface Team {
+  id: string;
+  name: string;
+  logo_url?: string;
+  created_by?: string;
+}
+
+interface Player {
+  id: string;
+  team_id: string;
+  first_name: string;
+  last_name: string;
+  jersey_number: number | null;
+  position: 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LW' | 'RW' | 'ST';
+  status: 'active' | 'injured' | 'suspended' | 'inactive';
+}
+
 interface LineupBuilderState {
   formation: string;
   players: LineupPlayer[];
   selectedPlayerId?: string;
+  selectedTeamId?: string;
+  teams: Team[];
   setFormation: (formation: string) => void;
   addPlayer: (p: LineupPlayer) => void;
   updatePlayer: (player_id: string, partial: Partial<LineupPlayer>) => void;
@@ -39,12 +58,18 @@ interface LineupBuilderState {
   // Supabase 연동
   saveLineupToDB: (teamId: string, createdBy: string) => Promise<any>;
   loadLineupFromDB: (lineupId: string) => Promise<any>;
+  // 팀 및 선수 불러오기
+  loadUserTeams: (userId: string) => Promise<void>;
+  loadTeamPlayers: (teamId: string) => Promise<void>;
+  setSelectedTeamId: (teamId: string | undefined) => void;
 }
 
 export const useLineupBuilderStore = create<LineupBuilderState>((set, get) => ({
   formation: '4-4-2',
   players: [],
   selectedPlayerId: undefined,
+  selectedTeamId: undefined,
+  teams: [],
   setFormation: (formation) => set({ formation }),
   addPlayer: (p) => set((s) => ({ players: [...s.players, p] })),
   updatePlayer: (player_id, partial) => set((s) => ({ players: s.players.map(p=>p.player_id===player_id?{...p,...partial}:p) })),
@@ -85,4 +110,34 @@ export const useLineupBuilderStore = create<LineupBuilderState>((set, get) => ({
     set({ formation: data.formation, players: data.players });
     return data;
   },
+  loadUserTeams: async (userId) => {
+    const { data, error } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('created_by', userId)
+      .order('created_at', { ascending: false });
+    if(error) throw error;
+    set({ teams: data || [] });
+  },
+  loadTeamPlayers: async (teamId) => {
+    const { data, error } = await supabase
+      .from('players')
+      .select('*')
+      .eq('team_id', teamId)
+      .eq('status', 'active')
+      .order('jersey_number', { ascending: true, nullsFirst: false });
+    if(error) throw error;
+    
+    // DB 선수를 LineupPlayer로 변환
+    const lineupPlayers: LineupPlayer[] = (data || []).map(player => ({
+      player_id: player.id,
+      name: `${player.first_name} ${player.last_name}`,
+      number: player.jersey_number || undefined,
+      role: player.position,
+      position: { x: 0.5, y: 0.5 }, // 기본 중앙 위치
+    }));
+    
+    set({ players: lineupPlayers, selectedTeamId: teamId });
+  },
+  setSelectedTeamId: (teamId) => set({ selectedTeamId: teamId }),
 }));

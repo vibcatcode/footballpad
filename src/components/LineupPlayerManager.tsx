@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 const POSITIONS = ['GK', 'DF', 'MF', 'FW'];
 
 export function LineupPlayerManager() {
-  const { players, addPlayer, removePlayer, selectedPlayerId } = useLineupBuilderStore();
+  const { players, addPlayer, removePlayer, selectedPlayerId, selectedTeamId } = useLineupBuilderStore();
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const [role, setRole] = useState('');
@@ -57,6 +57,11 @@ export function LineupPlayerManager() {
 
       {/* 선수 추가 폼 */}
       <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+        {selectedTeamId && (
+          <div className="mb-2 p-2 bg-blue-50 border border-blue-200 rounded text-center">
+            <p className="text-xs text-blue-800">팀에서 불러온 선수 + 수동 추가 가능</p>
+          </div>
+        )}
         <input
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           placeholder="선수 이름"

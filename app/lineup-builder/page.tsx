@@ -5,6 +5,7 @@ import { FieldCanvas } from '@/src/components/lineup/FieldCanvas';
 import { FormationSelector } from '@/src/components/lineup/FormationSelector';
 import { LineupPlayerManager } from '@/src/components/LineupPlayerManager';
 import { ExportButton } from '@/src/components/ExportButton';
+import { TeamSelector } from '@/src/components/TeamSelector';
 
 export default function BuilderPage() {
   return (
@@ -17,8 +18,9 @@ export default function BuilderPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* 왼쪽 패널: 선수 관리 */}
-          <aside className="lg:col-span-1">
+          {/* 왼쪽 패널: 팀 선택 및 선수 관리 */}
+          <aside className="lg:col-span-1 space-y-6">
+            <TeamSelector />
             <LineupPlayerManager />
           </aside>
 
