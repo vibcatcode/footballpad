@@ -35,35 +35,34 @@ export function ThemeToggleMobile() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-b">
-      <span className="text-sm font-medium">테마 설정</span>
+    <div className="flex items-center justify-end px-4 py-3 border-b">
       <div className="flex items-center space-x-2">
         <Button
-          variant={theme === 'light' ? 'default' : 'outline'}
-          size="sm"
+          variant={theme === 'light' ? 'default' : 'ghost'}
+          size="icon"
           onClick={() => setTheme('light')}
-          className="h-8 px-3"
+          className="h-9 w-9"
         >
-          <Sun className="h-4 w-4 mr-1" />
-          라이트
+          <Sun className="h-4 w-4 text-foreground" />
+          <span className="sr-only">라이트</span>
         </Button>
         <Button
-          variant={theme === 'dark' ? 'default' : 'outline'}
-          size="sm"
+          variant={theme === 'dark' ? 'default' : 'ghost'}
+          size="icon"
           onClick={() => setTheme('dark')}
-          className="h-8 px-3"
+          className="h-9 w-9"
         >
-          <Moon className="h-4 w-4 mr-1" />
-          다크
+          <Moon className="h-4 w-4 text-foreground" />
+          <span className="sr-only">다크</span>
         </Button>
         <Button
-          variant={theme === 'system' ? 'default' : 'outline'}
-          size="sm"
+          variant={theme === 'system' ? 'default' : 'ghost'}
+          size="icon"
           onClick={() => setTheme('system')}
-          className="h-8 px-3"
+          className="h-9 w-9"
         >
-          <Monitor className="h-4 w-4 mr-1" />
-          시스템
+          <Monitor className="h-4 w-4 text-foreground" />
+          <span className="sr-only">시스템</span>
         </Button>
       </div>
     </div>
