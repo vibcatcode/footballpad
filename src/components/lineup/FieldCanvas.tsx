@@ -1,18 +1,33 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva';
 import { useLineupBuilderStore } from '../../store/useLineupBuilderStore';
 
-const FIELD_W = 450;
-const FIELD_H = 650;
 const PLAYER_RADIUS = 28;
 const SNAP_GAP = 10;
 
 export function FieldCanvas() {
   const { players, updatePlayer, selectPlayer, selectedPlayerId, removePlayer } = useLineupBuilderStore();
   const [longPressed, setLongPressed] = useState<string | undefined>();
+  const [dimensions, setDimensions] = useState({ width: 450, height: 650 });
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingRef = useRef(false);
+
+  useEffect(() => {
+    const updateDimensions = () => {
+      const isMobile = window.innerWidth < 768;
+      setDimensions({
+        width: isMobile ? Math.min(350, window.innerWidth - 40) : 450,
+        height: isMobile ? 500 : 650,
+      });
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   // snap helper
   function snap(val: number, gap: number = SNAP_GAP) {
@@ -20,22 +35,49 @@ export function FieldCanvas() {
   }
 
   // 모바일 롱탭 핸들러
-  function handleTouchStart(playerId: string) {
+  function handleTouchStart(playerId: string, e?: any) {
+    if (e?.nativeEvent?.touches?.[0]) {
+      const touch = e.nativeEvent.touches[0];
+      touchStartPos.current = { x: touch.clientX, y: touch.clientY };
+    }
+    
     timerRef.current = setTimeout(() => {
-      setLongPressed(playerId);
+      if (!isDraggingRef.current) {
+        setLongPressed(playerId);
+      }
     }, 600); // 600ms
   }
 
   function handleTouchEnd() {
     if (timerRef.current) clearTimeout(timerRef.current);
+    touchStartPos.current = null;
+    isDraggingRef.current = false;
   }
 
+  function handleTouchMove(e?: any) {
+    if (e?.nativeEvent?.touches?.[0] && touchStartPos.current) {
+      const touch = e.nativeEvent.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+      
+      // 10px 이상 움직이면 드래그로 간주
+      if (deltaX > 10 || deltaY > 10) {
+        isDraggingRef.current = true;
+        if (timerRef.current) clearTimeout(timerRef.current);
+      }
+    }
+  }
+
+  const FIELD_W = dimensions.width;
+  const FIELD_H = dimensions.height;
+
   return (
-    <Stage
-      width={FIELD_W}
-      height={FIELD_H}
-      style={{ background: '#0B3D0B', borderRadius: '18px', touchAction: 'none' }}
-    >
+    <div className="relative flex justify-center">
+      <Stage
+        width={FIELD_W}
+        height={FIELD_H}
+        style={{ background: '#0B3D0B', borderRadius: '18px', touchAction: 'none' }}
+      >
       <Layer>
         {/* 필드 배경 */}
         <Rect
@@ -127,7 +169,8 @@ export function FieldCanvas() {
             }}
             onClick={() => selectPlayer(p.player_id)}
             onTap={() => selectPlayer(p.player_id)}
-            onTouchStart={() => handleTouchStart(p.player_id)}
+            onTouchStart={(e) => handleTouchStart(p.player_id, e)}
+            onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
             {/* 선수 원 */}
@@ -212,5 +255,6 @@ export function FieldCanvas() {
         ))}
       </Layer>
     </Stage>
+    </div>
   );
 }

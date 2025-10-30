@@ -20,6 +20,12 @@ export const metadata: Metadata = {
   description: "축구 전술, 경기분석, 기술훈련, 레슨, 리뷰를 제공하는 축구 전문 사이트 · 포메이션 분석 · 경기 데이터 · 훈련 프로그램",
   keywords: "축구, 전술, 경기분석, 기술훈련, 레슨, 리뷰, 포메이션, 축구훈련, 풋볼패드",
   authors: [{ name: "FootballPad Team" }],
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
   openGraph: {
     title: "FootballPad - 축구 전술, 경기분석, 기술훈련 전문 사이트",
     description: "축구 전술, 경기분석, 기술훈련, 레슨, 리뷰를 제공하는 축구 전문 사이트",
