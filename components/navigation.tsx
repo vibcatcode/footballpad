@@ -39,11 +39,6 @@ const navigationItems = [
     icon: Home
   },
   {
-    title: '대시보드',
-    href: '/dashboard',
-    icon: Settings
-  },
-  {
     title: '리그',
     href: '/leagues',
     icon: Trophy,
@@ -205,14 +200,31 @@ export function Navigation() {
         {/* 데스크톱 사용자 메뉴 및 테마 토글 */}
         <div className="hidden md:flex items-center space-x-2">
           {user ? (
-            <div className="flex items-center space-x-2">
-              <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-accent/50">
+            <div className="relative group">
+              <button className="flex items-center space-x-2 px-3 py-2 rounded-md bg-accent/50 hover:bg-accent transition-colors">
                 <User className="h-4 w-4" />
                 <span className="text-sm font-medium">{user.user_metadata?.username || user.email}</span>
+              </button>
+              
+              {/* 사용자 드롭다운 메뉴 */}
+              <div className="absolute top-full right-0 mt-1 w-48 bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-1">
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    대시보드
+                  </Link>
+                  <button
+                    onClick={signOut}
+                    className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    로그아웃
+                  </button>
+                </div>
               </div>
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="h-4 w-4" />
-              </Button>
             </div>
           ) : (
             <div className="flex items-center space-x-2">
@@ -281,6 +293,52 @@ export function Navigation() {
                       )}
                     </div>
                   ))}
+                  
+                  {/* 사용자 메뉴 (모바일) */}
+                  {user ? (
+                    <div className="border-t pt-4 mt-4">
+                      <div className="px-4 py-2 text-sm text-muted-foreground mb-2">
+                        {user.user_metadata?.username || user.email}
+                      </div>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Settings className="h-5 w-5 text-foreground" />
+                        <span className="font-medium text-foreground">대시보드</span>
+                      </Link>
+                      <button
+                        onClick={() => {
+                          signOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground w-full"
+                      >
+                        <LogOut className="h-5 w-5 text-foreground" />
+                        <span className="font-medium text-foreground">로그아웃</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-t pt-4 mt-4 space-y-2">
+                      <Link
+                        href="/auth/login"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5 text-foreground" />
+                        <span className="font-medium text-foreground">로그인</span>
+                      </Link>
+                      <Link
+                        href="/auth/signup"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5 text-foreground" />
+                        <span className="font-medium text-foreground">회원가입</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
