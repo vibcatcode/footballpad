@@ -11,7 +11,6 @@ const SNAP_GAP = 10;
 // 페널티 박스: 16.5m x 40.3m
 // 골 에어리어: 5.5m x 18.3m
 // 페널티 스팟: 골라인에서 11m
-// 페널티 아크: 반지름 9.15m
 // 센터 서클: 반지름 9.15m
 
 export function FieldCanvas() {
@@ -93,12 +92,8 @@ export function FieldCanvas() {
   // 페널티 스팟: 골라인에서 11m
   const PENALTY_SPOT_DISTANCE = FIELD_H * 0.105; // 11m / 105m
   
-  // 센터 서클 및 페널티 아크 반지름: 9.15m
+  // 센터 서클 반지름: 9.15m
   const CENTER_CIRCLE_RADIUS = FIELD_H * 0.087; // 9.15m / 105m
-  const PENALTY_ARC_RADIUS = FIELD_H * 0.087; // 9.15m / 105m
-  
-  // 코너 아크 반지름
-  const CORNER_ARC_RADIUS = FIELD_W * 0.03; // 대략 2m 정도
   
   // 마진 (필드 외부 여백)
   const MARGIN = 0;
@@ -111,7 +106,7 @@ export function FieldCanvas() {
         style={{ background: '#0B3D0B', borderRadius: '18px' }}
       >
       <Layer>
-        {/* 잔디 배경 (세로 줄무늬 패턴) */}
+        {/* 잔디 배경 (단색) */}
         <Rect
           x={0}
           y={0}
@@ -119,18 +114,6 @@ export function FieldCanvas() {
           height={FIELD_H}
           fill="#0B3D0B"
         />
-        
-        {/* 잔디 줄무늬 효과 */}
-        {Array.from({ length: 40 }).map((_, i) => (
-          <Rect
-            key={i}
-            x={i * (FIELD_W / 40)}
-            y={0}
-            width={FIELD_W / 40}
-            height={FIELD_H}
-            fill={i % 2 === 0 ? '#0B3D0B' : '#0f4513'}
-          />
-        ))}
 
         {/* 외곽 필드 경계선 */}
         <Rect
@@ -197,18 +180,6 @@ export function FieldCanvas() {
           fill="#ffffff"
         />
         
-        {/* 상단 페널티 아크 (절반만 표시) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // 0 to π
-            const x = FIELD_W / 2 + PENALTY_ARC_RADIUS * Math.cos(angle);
-            const y = MARGIN + PENALTY_SPOT_DISTANCE + PENALTY_ARC_RADIUS * Math.sin(angle);
-            return [x, y];
-          }).flat()}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
         {/* 상단 골 */}
         <Rect
           x={FIELD_W / 2 - GOAL_WIDTH / 2}
@@ -249,72 +220,12 @@ export function FieldCanvas() {
           fill="#ffffff"
         />
         
-        {/* 하단 페널티 아크 (절반만 표시) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // 0 to π
-            const x = FIELD_W / 2 - PENALTY_ARC_RADIUS * Math.cos(angle);
-            const y = FIELD_H - MARGIN - PENALTY_SPOT_DISTANCE - PENALTY_ARC_RADIUS * Math.sin(angle);
-            return [x, y];
-          }).flat()}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
         {/* 하단 골 */}
         <Rect
           x={FIELD_W / 2 - GOAL_WIDTH / 2}
           y={FIELD_H - MARGIN + 2}
           width={GOAL_WIDTH}
           height={0}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
-        {/* 코너 아크 (상단 좌측) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // 0 to π/2
-            const x = MARGIN + CORNER_ARC_RADIUS * (1 - Math.cos(angle));
-            const y = MARGIN + CORNER_ARC_RADIUS * (1 - Math.sin(angle));
-            return [x, y];
-          }).flat()}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
-        {/* 코너 아크 (상단 우측) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // π/2 to π
-            const x = FIELD_W - MARGIN - CORNER_ARC_RADIUS * (1 + Math.cos(angle));
-            const y = MARGIN + CORNER_ARC_RADIUS * (1 - Math.sin(angle));
-            return [x, y];
-          }).flat()}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
-        {/* 코너 아크 (하단 좌측) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // π to 3π/2
-            const x = MARGIN + CORNER_ARC_RADIUS * (1 + Math.cos(angle));
-            const y = FIELD_H - MARGIN - CORNER_ARC_RADIUS * (1 + Math.sin(angle));
-            return [x, y];
-          }).flat()}
-          stroke="#ffffff"
-          strokeWidth={3}
-        />
-        
-        {/* 코너 아크 (하단 우측) */}
-        <Line
-          points={Array.from({ length: 90 }).map((_, i) => {
-            const angle = (i * Math.PI) / 180; // 3π/2 to 2π
-            const x = FIELD_W - MARGIN - CORNER_ARC_RADIUS * (1 - Math.cos(angle));
-            const y = FIELD_H - MARGIN - CORNER_ARC_RADIUS * (1 + Math.sin(angle));
-            return [x, y];
-          }).flat()}
           stroke="#ffffff"
           strokeWidth={3}
         />
