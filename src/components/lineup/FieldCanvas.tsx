@@ -1,11 +1,18 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Stage, Layer, Rect, Circle, Text, Group } from 'react-konva';
+import { Stage, Layer, Rect, Circle, Text, Group, Line } from 'react-konva';
 import { useLineupBuilderStore } from '../../store/useLineupBuilderStore';
 
 const PLAYER_RADIUS = 28;
 const SNAP_GAP = 10;
+
+// 실제 축구장 비율: 100-110m x 64-75m (국제경기: 105m x 68m)
+// 페널티 박스: 16.5m x 40.3m
+// 골 에어리어: 5.5m x 18.3m
+// 페널티 스팟: 골라인에서 11m
+// 페널티 아크: 반지름 9.15m
+// 센터 서클: 반지름 9.15m
 
 export function FieldCanvas() {
   const { players, updatePlayer, selectPlayer, selectedPlayerId, removePlayer } = useLineupBuilderStore();
@@ -71,6 +78,31 @@ export function FieldCanvas() {
   const FIELD_W = dimensions.width;
   const FIELD_H = dimensions.height;
 
+  // 실제 축구장 비율 계산 (105m x 68m 기준)
+  // 페널티 박스: 16.5m x 40.3m (전체 폭의 59%)
+  const PENALTY_BOX_WIDTH = FIELD_W * 0.59; // 40.3m / 68m
+  const PENALTY_BOX_HEIGHT = FIELD_H * 0.157; // 16.5m / 105m
+  
+  // 골 에어리어: 5.5m x 18.3m
+  const GOAL_AREA_WIDTH = FIELD_W * 0.27; // 18.3m / 68m
+  const GOAL_AREA_HEIGHT = FIELD_H * 0.052; // 5.5m / 105m
+  
+  // 골 폭: 7.32m (전체 폭의 10.8%)
+  const GOAL_WIDTH = FIELD_W * 0.108; // 7.32m / 68m
+  
+  // 페널티 스팟: 골라인에서 11m
+  const PENALTY_SPOT_DISTANCE = FIELD_H * 0.105; // 11m / 105m
+  
+  // 센터 서클 및 페널티 아크 반지름: 9.15m
+  const CENTER_CIRCLE_RADIUS = FIELD_H * 0.087; // 9.15m / 105m
+  const PENALTY_ARC_RADIUS = FIELD_H * 0.087; // 9.15m / 105m
+  
+  // 코너 아크 반지름
+  const CORNER_ARC_RADIUS = FIELD_W * 0.03; // 대략 2m 정도
+  
+  // 마진 (필드 외부 여백)
+  const MARGIN = 0;
+
   return (
     <div className="relative flex justify-center">
       <Stage
@@ -79,72 +111,211 @@ export function FieldCanvas() {
         style={{ background: '#0B3D0B', borderRadius: '18px' }}
       >
       <Layer>
-        {/* 필드 배경 */}
+        {/* 잔디 배경 (세로 줄무늬 패턴) */}
         <Rect
           x={0}
           y={0}
           width={FIELD_W}
           height={FIELD_H}
           fill="#0B3D0B"
-          stroke="#6FCF97"
-          strokeWidth={6}
-          cornerRadius={18}
         />
         
-        {/* 필드 경계선 */}
+        {/* 잔디 줄무늬 효과 */}
+        {Array.from({ length: 40 }).map((_, i) => (
+          <Rect
+            key={i}
+            x={i * (FIELD_W / 40)}
+            y={0}
+            width={FIELD_W / 40}
+            height={FIELD_H}
+            fill={i % 2 === 0 ? '#0B3D0B' : '#0f4513'}
+          />
+        ))}
+
+        {/* 외곽 필드 경계선 */}
         <Rect
-          x={30}
-          y={30}
-          width={FIELD_W - 60}
-          height={FIELD_H - 60}
-          stroke="#6FCF97"
+          x={MARGIN}
+          y={MARGIN}
+          width={FIELD_W - MARGIN * 2}
+          height={FIELD_H - MARGIN * 2}
+          stroke="#ffffff"
+          strokeWidth={4}
+          cornerRadius={0}
+        />
+        
+        {/* 중앙선 */}
+        <Line
+          points={[MARGIN, FIELD_H / 2, FIELD_W - MARGIN, FIELD_H / 2]}
+          stroke="#ffffff"
           strokeWidth={3}
-          cornerRadius={15}
         />
         
         {/* 센터 서클 */}
-        <Circle x={FIELD_W / 2} y={FIELD_H / 2} radius={60} stroke="#6FCF97" strokeWidth={3} />
-        <Circle x={FIELD_W / 2} y={FIELD_H / 2} radius={4} fill="#6FCF97" />
-        
-        {/* 페널티 박스 (상단) */}
-        <Rect
-          x={FIELD_W / 2 - 60}
-          y={30}
-          width={120}
-          height={120}
-          stroke="#6FCF97"
+        <Circle
+          x={FIELD_W / 2}
+          y={FIELD_H / 2}
+          radius={CENTER_CIRCLE_RADIUS}
+          stroke="#ffffff"
           strokeWidth={3}
-          cornerRadius={8}
         />
         
-        {/* 페널티 박스 (하단) */}
-        <Rect
-          x={FIELD_W / 2 - 60}
-          y={FIELD_H - 150}
-          width={120}
-          height={120}
-          stroke="#6FCF97"
-          strokeWidth={3}
-          cornerRadius={8}
+        {/* 센터 스팟 */}
+        <Circle
+          x={FIELD_W / 2}
+          y={FIELD_H / 2}
+          radius={4}
+          fill="#ffffff"
         />
-
-        {/* 골 대 (상단) */}
+        
+        {/* 상단 페널티 박스 */}
         <Rect
-          x={FIELD_W / 2 - 30}
-          y={30}
-          width={60}
-          height={60}
-          stroke="#6FCF97"
+          x={FIELD_W / 2 - PENALTY_BOX_WIDTH / 2}
+          y={MARGIN}
+          width={PENALTY_BOX_WIDTH}
+          height={PENALTY_BOX_HEIGHT}
+          stroke="#ffffff"
+          strokeWidth={3}
+          cornerRadius={0}
+        />
+        
+        {/* 상단 골 에어리어 (6-yard box) */}
+        <Rect
+          x={FIELD_W / 2 - GOAL_AREA_WIDTH / 2}
+          y={MARGIN}
+          width={GOAL_AREA_WIDTH}
+          height={GOAL_AREA_HEIGHT}
+          stroke="#ffffff"
+          strokeWidth={3}
+          cornerRadius={0}
+        />
+        
+        {/* 상단 페널티 스팟 */}
+        <Circle
+          x={FIELD_W / 2}
+          y={MARGIN + PENALTY_SPOT_DISTANCE}
+          radius={3}
+          fill="#ffffff"
+        />
+        
+        {/* 상단 페널티 아크 (절반만 표시) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // 0 to π
+            const x = FIELD_W / 2 + PENALTY_ARC_RADIUS * Math.cos(angle);
+            const y = MARGIN + PENALTY_SPOT_DISTANCE + PENALTY_ARC_RADIUS * Math.sin(angle);
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
           strokeWidth={3}
         />
-
-        {/* 골 대 (하단) */}
+        
+        {/* 상단 골 */}
         <Rect
-          x={FIELD_W / 2 - 30}
-          y={FIELD_H - 90}
-          width={60}
-          height={60}
-          stroke="#6FCF97"
+          x={FIELD_W / 2 - GOAL_WIDTH / 2}
+          y={MARGIN - 2}
+          width={GOAL_WIDTH}
+          height={0}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 하단 페널티 박스 */}
+        <Rect
+          x={FIELD_W / 2 - PENALTY_BOX_WIDTH / 2}
+          y={FIELD_H - MARGIN - PENALTY_BOX_HEIGHT}
+          width={PENALTY_BOX_WIDTH}
+          height={PENALTY_BOX_HEIGHT}
+          stroke="#ffffff"
+          strokeWidth={3}
+          cornerRadius={0}
+        />
+        
+        {/* 하단 골 에어리어 (6-yard box) */}
+        <Rect
+          x={FIELD_W / 2 - GOAL_AREA_WIDTH / 2}
+          y={FIELD_H - MARGIN - GOAL_AREA_HEIGHT}
+          width={GOAL_AREA_WIDTH}
+          height={GOAL_AREA_HEIGHT}
+          stroke="#ffffff"
+          strokeWidth={3}
+          cornerRadius={0}
+        />
+        
+        {/* 하단 페널티 스팟 */}
+        <Circle
+          x={FIELD_W / 2}
+          y={FIELD_H - MARGIN - PENALTY_SPOT_DISTANCE}
+          radius={3}
+          fill="#ffffff"
+        />
+        
+        {/* 하단 페널티 아크 (절반만 표시) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // 0 to π
+            const x = FIELD_W / 2 - PENALTY_ARC_RADIUS * Math.cos(angle);
+            const y = FIELD_H - MARGIN - PENALTY_SPOT_DISTANCE - PENALTY_ARC_RADIUS * Math.sin(angle);
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 하단 골 */}
+        <Rect
+          x={FIELD_W / 2 - GOAL_WIDTH / 2}
+          y={FIELD_H - MARGIN + 2}
+          width={GOAL_WIDTH}
+          height={0}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 코너 아크 (상단 좌측) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // 0 to π/2
+            const x = MARGIN + CORNER_ARC_RADIUS * (1 - Math.cos(angle));
+            const y = MARGIN + CORNER_ARC_RADIUS * (1 - Math.sin(angle));
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 코너 아크 (상단 우측) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // π/2 to π
+            const x = FIELD_W - MARGIN - CORNER_ARC_RADIUS * (1 + Math.cos(angle));
+            const y = MARGIN + CORNER_ARC_RADIUS * (1 - Math.sin(angle));
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 코너 아크 (하단 좌측) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // π to 3π/2
+            const x = MARGIN + CORNER_ARC_RADIUS * (1 + Math.cos(angle));
+            const y = FIELD_H - MARGIN - CORNER_ARC_RADIUS * (1 + Math.sin(angle));
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
+          strokeWidth={3}
+        />
+        
+        {/* 코너 아크 (하단 우측) */}
+        <Line
+          points={Array.from({ length: 90 }).map((_, i) => {
+            const angle = (i * Math.PI) / 180; // 3π/2 to 2π
+            const x = FIELD_W - MARGIN - CORNER_ARC_RADIUS * (1 - Math.cos(angle));
+            const y = FIELD_H - MARGIN - CORNER_ARC_RADIUS * (1 + Math.sin(angle));
+            return [x, y];
+          }).flat()}
+          stroke="#ffffff"
           strokeWidth={3}
         />
 
@@ -157,8 +328,8 @@ export function FieldCanvas() {
             draggable
             dragBoundFunc={(pos) => ({
               // 필드 경계 내로 제한
-              x: Math.max(PLAYER_RADIUS + 30, Math.min(pos.x, FIELD_W - PLAYER_RADIUS - 30)),
-              y: Math.max(PLAYER_RADIUS + 30, Math.min(pos.y, FIELD_H - PLAYER_RADIUS - 30)),
+              x: Math.max(PLAYER_RADIUS + MARGIN, Math.min(pos.x, FIELD_W - PLAYER_RADIUS - MARGIN)),
+              y: Math.max(PLAYER_RADIUS + MARGIN, Math.min(pos.y, FIELD_H - PLAYER_RADIUS - MARGIN)),
             })}
             onDragEnd={(e) => {
               let nx = snap(e.target.x());
