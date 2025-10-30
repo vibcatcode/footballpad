@@ -135,18 +135,31 @@ export function Navigation() {
               <div key={item.title} className="relative group">
                 {item.subItems ? (
                   <>
-                    <button className="flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200">
+                    <button className="flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-[#408865] hover:text-white hover:border-[#408865] transition-all duration-200">
                       <item.icon className="mr-1.5 h-4 w-4 flex-shrink-0" />
                       <span>{item.title}</span>
                     </button>
-                    {/* 드롭다운 메뉴는 나중에 구현 */}
+                    {/* 드롭다운 메뉴 */}
+                    <div className="absolute top-full left-0 mt-1 w-48 bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="py-1">
+                        {item.subItems.map((subItem) => (
+                          <Link
+                            key={subItem.title}
+                            href={subItem.href}
+                            className="block px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
+                          >
+                            {subItem.title}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   </>
                 ) : (
                   item.external ? (
                     <a
                       href={item.href}
                       className={cn(
-                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200",
+                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-[#408865] hover:text-white hover:border-[#408865] transition-all duration-200",
                         pathname === item.href && "bg-accent text-accent-foreground"
                       )}
                     >
@@ -157,7 +170,7 @@ export function Navigation() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-accent hover:border-border transition-all duration-200",
+                        "flex items-center h-10 px-4 text-sm font-medium text-foreground bg-background rounded-md border border-transparent hover:bg-[#408865] hover:text-white hover:border-[#408865] transition-all duration-200",
                         pathname === item.href && "bg-accent text-accent-foreground"
                       )}
                     >
