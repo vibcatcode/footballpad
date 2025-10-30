@@ -103,7 +103,7 @@ export default function Home() {
                   리그 만들기
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400">
+              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 border-2 border-border text-foreground hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20 transition-all duration-200">
                 <Link href="/leagues">
                   <Trophy className="w-5 h-5 mr-2" />
                   리그 둘러보기
@@ -186,7 +186,7 @@ export default function Home() {
                 리그 만들기
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent border-white text-white hover:bg-white hover:text-green-600">
+            <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6 bg-transparent border-white text-white hover:bg-white hover:text-green-600 transition-all duration-200">
               <Link href="/teams/create">
                 <Users className="w-5 h-5 mr-2" />
                 팀 등록하기
