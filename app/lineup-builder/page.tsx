@@ -34,7 +34,7 @@ export default function BuilderPage() {
               </div>
 
               {/* 필드 */}
-              <div className="bg-gradient-to-b from-green-50 to-green-100 p-4 rounded-lg">
+              <div className="bg-gradient-to-b from-green-50 to-green-100 p-4 rounded-lg overflow-hidden">
                 <div id="lineup-canvas" className="flex justify-center">
                   <FieldCanvas />
                 </div>

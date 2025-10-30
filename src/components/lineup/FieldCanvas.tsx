@@ -76,7 +76,7 @@ export function FieldCanvas() {
       <Stage
         width={FIELD_W}
         height={FIELD_H}
-        style={{ background: '#0B3D0B', borderRadius: '18px', touchAction: 'none' }}
+        style={{ background: '#0B3D0B', borderRadius: '18px' }}
       >
       <Layer>
         {/* 필드 배경 */}

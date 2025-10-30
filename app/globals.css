@@ -81,6 +81,8 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
 }
 
 body {
@@ -89,6 +91,7 @@ body {
   background: var(--fp-bg);
   color: var(--fp-text);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", Helvetica, Arial, sans-serif;
+  -webkit-overflow-scrolling: touch;
 }
 
 @theme inline {
