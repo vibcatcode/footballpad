@@ -26,11 +26,11 @@ import {
   MessageSquare,
   Settings,
   User,
+  LogOut,
   ExternalLink
 } from 'lucide-react';
 import { ThemeToggle, ThemeToggleMobile } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/auth-context';
-import { User, LogOut, Settings } from 'lucide-react';
 
 const navigationItems = [
   {

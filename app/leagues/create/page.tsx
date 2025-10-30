@@ -72,17 +72,7 @@ export default function CreateLeaguePage() {
         return;
       }
 
-      // 리그 설정도 생성
-      if (data) {
-        await supabase
-          .from('league_settings')
-          .insert({
-            league_id: data[0].id,
-            points_for_win: formData.winPoints,
-            points_for_draw: formData.drawPoints,
-            points_for_loss: formData.lossPoints,
-          });
-      }
+      // 리그 생성 성공
 
       alert('리그가 성공적으로 생성되었습니다!');
       router.push('/leagues');
