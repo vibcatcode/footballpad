@@ -29,12 +29,19 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { ThemeToggle, ThemeToggleMobile } from '@/components/theme-toggle';
+import { useAuth } from '@/lib/auth-context';
+import { User, LogOut, Settings } from 'lucide-react';
 
 const navigationItems = [
   {
     title: '홈',
     href: '/',
     icon: Home
+  },
+  {
+    title: '대시보드',
+    href: '/dashboard',
+    icon: Settings
   },
   {
     title: '리그',
@@ -117,6 +124,7 @@ const navigationItems = [
 export function Navigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
@@ -194,8 +202,28 @@ export function Navigation() {
           </div>
         </div>
 
-        {/* 데스크톱 테마 토글 */}
-        <div className="hidden md:flex items-center">
+        {/* 데스크톱 사용자 메뉴 및 테마 토글 */}
+        <div className="hidden md:flex items-center space-x-2">
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 px-3 py-2 rounded-md bg-accent/50">
+                <User className="h-4 w-4" />
+                <span className="text-sm font-medium">{user.user_metadata?.username || user.email}</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/auth/login">로그인</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/auth/signup">회원가입</Link>
+              </Button>
+            </div>
+          )}
           <ThemeToggle />
         </div>
 

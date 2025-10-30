@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
 import { ThemeProvider } from "@/lib/theme-provider";
+import { AuthProvider } from "@/lib/auth-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,10 +52,12 @@ export default function RootLayout({
           defaultTheme="system"
           storageKey="footballpad-theme"
         >
-          <Navigation />
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <AuthProvider>
+            <Navigation />
+            <main className="min-h-screen">
+              {children}
+            </main>
+          </AuthProvider>
         </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{

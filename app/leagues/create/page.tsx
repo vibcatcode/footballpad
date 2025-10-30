@@ -18,11 +18,15 @@ import {
   Settings,
   Save
 } from 'lucide-react';
+import { PrivacySelect } from '@/components/ui/privacy-select';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
 export default function CreateLeaguePage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -35,14 +39,57 @@ export default function CreateLeaguePage() {
     drawPoints: 1,
     lossPoints: 0,
     venue: '',
-    timeSlot: '19:00'
+    timeSlot: '19:00',
+    visibility: 'public' as 'public' | 'private' | 'unlisted'
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API 호출로 리그 생성
-    console.log('리그 생성:', formData);
-    router.push('/leagues');
+    
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('leagues')
+        .insert({
+          name: formData.name,
+          description: formData.description,
+          season: formData.season,
+          start_date: formData.startDate?.toISOString().split('T')[0],
+          end_date: formData.endDate?.toISOString().split('T')[0],
+          max_teams: formData.maxGames,
+          created_by: user.id,
+          is_public: formData.visibility === 'public',
+          visibility: formData.visibility,
+        });
+
+      if (error) {
+        console.error('Error creating league:', error);
+        alert('리그 생성 중 오류가 발생했습니다.');
+        return;
+      }
+
+      // 리그 설정도 생성
+      if (data) {
+        await supabase
+          .from('league_settings')
+          .insert({
+            league_id: data[0].id,
+            points_for_win: formData.winPoints,
+            points_for_draw: formData.drawPoints,
+            points_for_loss: formData.lossPoints,
+          });
+      }
+
+      alert('리그가 성공적으로 생성되었습니다!');
+      router.push('/leagues');
+    } catch (error) {
+      console.error('Error creating league:', error);
+      alert('리그 생성 중 오류가 발생했습니다.');
+    }
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -253,6 +300,27 @@ export default function CreateLeaguePage() {
                       onChange={(e) => handleInputChange('timeSlot', e.target.value)}
                     />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* 공개 설정 */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Settings className="w-5 h-5" />
+                    공개 설정
+                  </CardTitle>
+                  <CardDescription>
+                    리그의 공개 범위를 설정하세요
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <PrivacySelect
+                    value={formData.visibility}
+                    onChange={(value) => handleInputChange('visibility', value)}
+                    label="리그 공개 설정"
+                    description="공개 리그는 모든 사용자가 볼 수 있고, 비공개 리그는 링크를 아는 사람만 볼 수 있습니다."
+                  />
                 </CardContent>
               </Card>
             </div>
