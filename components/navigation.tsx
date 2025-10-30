@@ -85,6 +85,7 @@ const navigationItems = [
     subItems: [
       { title: '전술보드', href: '/tactics' },
       { title: '포메이션', href: '/tactics/formations' },
+      { title: '라인업 빌더', href: '/lineup-builder' },
       { title: '전술 분석', href: '/tactics/analysis' }
     ]
   },
