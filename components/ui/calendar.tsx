@@ -20,19 +20,26 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       locale={locale}
       weekStartsOn={0}
+      captionLayout="dropdown-buttons"
+      fromYear={2000}
+      toYear={2100}
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-6 sm:space-x-6 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-base font-extrabold tracking-[0.35em] text-[#1d4ed8] uppercase",
-        nav: "space-x-1 flex items-center",
+        caption_label: "hidden",
+        caption_dropdowns: "flex gap-2 justify-center",
+        dropdown: "bg-background border rounded-md px-2 py-1 text-sm font-medium hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring",
+        dropdown_month: "",
+        dropdown_year: "",
+        nav: "space-x-1 flex items-center absolute right-0",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
           "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
-        nav_button_previous: "absolute left-1",
-        nav_button_next: "absolute right-1",
+        nav_button_previous: "absolute left-0",
+        nav_button_next: "absolute right-0",
         table: "w-full border-collapse space-y-2",
         head_row:
           "grid grid-cols-7 gap-1 text-center text-[0.75rem] uppercase tracking-[0.2em] text-slate-500 [&>*:nth-child(7n+1)]:text-red-500",
