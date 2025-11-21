@@ -50,7 +50,7 @@ const features = [
   },
   {
     title: '전술보드',
-    description: 'TacticalPad 스타일의 전술 보드로 포메이션과 전술을 시뮬레이션하세요',
+    description: '전술 보드로 포메이션과 전술을 시뮬레이션하세요',
     icon: BarChart3,
     href: '/tactics',
     color: 'bg-orange-500',
@@ -58,7 +58,7 @@ const features = [
   },
   {
     title: '통계 리포트',
-    description: 'WhoScored 스타일의 상세한 통계와 리포트를 자동 생성합니다',
+    description: '경기별 상세한 통계와 리포트를 자동 생성합니다',
     icon: FileText,
     href: '/reports',
     color: 'bg-red-500',

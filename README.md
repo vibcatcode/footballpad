@@ -509,3 +509,87 @@ SIDEBAR (관리자/팀모드일 때)
 | 차트 | Recharts 기반, 팀 컬러 반영                             |
 
 ---
+
+## 🚀 배포 가이드
+
+### 환경 변수 설정
+
+프로젝트를 배포하기 전에 다음 환경 변수를 설정해야 합니다:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Vercel 배포 (권장)
+
+1. **Vercel 계정 생성 및 프로젝트 연결**
+   - [Vercel](https://vercel.com)에 로그인
+   - GitHub 저장소를 연결
+   - 프로젝트 import
+
+2. **환경 변수 설정**
+   - Vercel 대시보드 → Settings → Environment Variables
+   - 다음 변수 추가:
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+3. **자동 배포**
+   - `main` 브랜치에 push하면 자동으로 배포됩니다
+   - Pull Request마다 프리뷰 배포가 생성됩니다
+
+### GitHub Actions를 통한 배포
+
+프로젝트에는 GitHub Actions 워크플로우가 포함되어 있습니다.
+
+1. **GitHub Secrets 설정**
+   - 저장소 → Settings → Secrets and variables → Actions
+   - 다음 Secrets 추가:
+     - `VERCEL_TOKEN`: Vercel API 토큰
+     - `VERCEL_ORG_ID`: Vercel 조직 ID
+     - `VERCEL_PROJECT_ID`: Vercel 프로젝트 ID
+     - `NEXT_PUBLIC_SUPABASE_URL`: Supabase URL
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase Anon Key
+
+2. **Vercel 토큰 및 ID 확인 방법**
+   ```bash
+   # Vercel CLI 설치
+   npm i -g vercel
+   
+   # 로그인
+   vercel login
+   
+   # 프로젝트 링크
+   vercel link
+   
+   # 토큰은 Vercel 대시보드 → Settings → Tokens에서 생성
+   # Org ID와 Project ID는 vercel.json 또는 .vercel/project.json에서 확인
+   ```
+
+3. **자동 배포**
+   - `main` 브랜치에 push하면 자동으로 빌드 및 배포가 실행됩니다
+   - Pull Request에서는 빌드만 실행되고 배포는 되지 않습니다
+
+### 로컬 빌드 테스트
+
+배포 전에 로컬에서 빌드를 테스트할 수 있습니다:
+
+```bash
+# 의존성 설치
+npm install
+
+# 프로덕션 빌드
+npm run build
+
+# 프로덕션 서버 실행
+npm start
+```
+
+### 배포 확인
+
+배포가 완료되면:
+- Vercel 대시보드에서 배포 상태 확인
+- 배포된 URL로 접속하여 앱이 정상 작동하는지 확인
+- 환경 변수가 제대로 설정되었는지 확인
+
+---
