@@ -95,12 +95,18 @@ export default function AdminPage() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, email, username, full_name, role, created_at, updated_at, banned_until, email_confirmed_at')
         .eq('id', user.id)
         .single();
 
       if (error) {
         console.error('Error fetching profile:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
         // 프로필이 없어도 최고관리자 이메일이면 계속 진행
         if (!isSuperAdminEmail(user.email)) {
           router.push('/dashboard');
@@ -111,6 +117,12 @@ export default function AdminPage() {
 
       if (data) {
         const casted = data as MemberProfile;
+        console.log('Admin profile loaded:', {
+          id: casted.id,
+          email: casted.email,
+          role: casted.role,
+          created_at: casted.created_at,
+        });
         setProfile(casted);
         if (!isSuperAdminEmail(user.email) && casted.role !== 'admin') {
           router.push('/dashboard');
@@ -140,7 +152,7 @@ export default function AdminPage() {
       // RLS 정책이 제대로 작동하는지 확인하기 위해 에러를 상세히 로깅
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, email, username, full_name, role, created_at, updated_at, banned_until, email_confirmed_at')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -159,15 +171,20 @@ export default function AdminPage() {
       }
 
       console.log('Fetched members:', data?.length || 0);
+      console.log('Members data:', data);
       
       // email_confirmed_at는 public.users에 저장되어 있거나 null일 수 있음
       setMembers((data || []) as MemberProfile[]);
       
       if (!data || data.length === 0) {
+        console.warn('No members found. This might be an RLS policy issue.');
         setFeedback({
           type: 'error',
           message: '회원 목록이 비어있습니다. RLS 정책을 확인해주세요.',
         });
+      } else {
+        // 성공 시 피드백 초기화
+        setFeedback(null);
       }
     } catch (error: any) {
       console.error('Error fetching members:', error);

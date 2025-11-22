@@ -116,17 +116,29 @@ export default function DashboardPage() {
     try {
       const { data, error } = await supabase
         .from('users')
-        .select('*')
+        .select('id, email, username, full_name, role, created_at, updated_at, banned_until, email_confirmed_at')
         .eq('id', user.id)
         .single();
 
       if (error) {
         console.error('Error fetching profile:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
         return;
       }
 
       if (data) {
         const casted = data as MemberProfile;
+        console.log('Profile loaded:', {
+          id: casted.id,
+          email: casted.email,
+          username: casted.username,
+          created_at: casted.created_at,
+        });
         setProfile(casted);
         setAccountForm({
           username: casted.username ?? '',
@@ -193,7 +205,7 @@ export default function DashboardPage() {
         .from('users')
         .update(updateData)
         .eq('id', user.id)
-        .select()
+        .select('id, email, username, full_name, role, created_at, updated_at, banned_until, email_confirmed_at')
         .single();
 
       if (error) {
