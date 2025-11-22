@@ -20,7 +20,7 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       locale={locale}
       weekStartsOn={0}
-      captionLayout="dropdown-buttons"
+      captionLayout="dropdown"
       fromYear={2000}
       toYear={2100}
       className={cn("p-3", className)}
