@@ -183,7 +183,7 @@ export default function DashboardPage() {
     if (!accountForm.username || accountForm.username.trim() === '') {
       setFeedback({
         type: 'error',
-        message: '사용자 이름을 입력해주세요.',
+        message: '사용자명을 입력해주세요.',
       });
       return;
     }
@@ -381,7 +381,7 @@ export default function DashboardPage() {
                   <Input id="account-email" value={user.email ?? ''} disabled />
                 </div>
                 <div>
-                  <Label htmlFor="account-username">사용자 이름</Label>
+                  <Label htmlFor="account-username">사용자명</Label>
                   <Input
                     id="account-username"
                     value={accountForm.username}
@@ -394,7 +394,7 @@ export default function DashboardPage() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="account-fullname">이름/표시 이름</Label>
+                  <Label htmlFor="account-fullname">공개적으로 표시할 이름</Label>
                   <Input
                     id="account-fullname"
                     value={accountForm.full_name}
