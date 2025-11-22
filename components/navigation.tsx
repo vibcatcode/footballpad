@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -27,10 +27,14 @@ import {
   Settings,
   User,
   LogOut,
-  ExternalLink
+  ExternalLink,
+  Shield
 } from 'lucide-react';
 import { ThemeToggle, ThemeToggleMobile } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+
+const SUPER_ADMIN_EMAILS: readonly string[] = ['geedojo@gmail.com'];
 
 const navigationItems = [
   {
@@ -121,6 +125,33 @@ export function Navigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const [userProfile, setUserProfile] = useState<{ role?: string } | null>(null);
+
+  const isSuperAdminEmail = (email?: string | null) =>
+    !!email && SUPER_ADMIN_EMAILS.includes(email);
+
+  const isSuperAdmin = useMemo(
+    () => isSuperAdminEmail(user?.email) || userProfile?.role === 'admin',
+    [user?.email, userProfile?.role]
+  );
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('users')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setUserProfile(data);
+          }
+        })
+        .catch(() => {
+          // 프로필이 없어도 최고관리자 이메일이면 접근 가능
+        });
+    }
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
@@ -217,6 +248,15 @@ export function Navigation() {
                     <Settings className="mr-2 h-4 w-4 text-foreground dark:text-foreground" />
                     대시보드
                   </Link>
+                  {isSuperAdmin && (
+                    <Link
+                      href="/dashboard/admin"
+                      className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
+                    >
+                      <Shield className="mr-2 h-4 w-4 text-foreground dark:text-foreground" />
+                      최고 관리자
+                    </Link>
+                  )}
                   <button
                     onClick={signOut}
                     className="flex items-center w-full px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
@@ -309,6 +349,16 @@ export function Navigation() {
                         <Settings className="h-5 w-5 text-foreground dark:text-foreground" />
                         <span className="font-medium text-foreground">대시보드</span>
                       </Link>
+                      {isSuperAdmin && (
+                        <Link
+                          href="/dashboard/admin"
+                          className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Shield className="h-5 w-5 text-foreground dark:text-foreground" />
+                          <span className="font-medium text-foreground">최고 관리자</span>
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           signOut();
