@@ -106,10 +106,15 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (user) {
-      fetchDashboardStats();
       fetchProfile();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (user && profile) {
+      fetchDashboardStats();
+    }
+  }, [user, profile]);
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -265,13 +270,57 @@ export default function DashboardPage() {
   };
 
   const fetchDashboardStats = async () => {
+    if (!user) return;
+    
     try {
+      let leaguesQuery = supabase.from('leagues').select('*');
+      let teamsQuery = supabase.from('teams').select('*');
+      let playersQuery = supabase.from('players').select('*');
+      let matchesQuery = supabase.from('matches').select('*');
+
+      // 최고 관리자가 아니면 자신이 만든/소속된 항목만 조회
+      if (!isSuperAdmin) {
+        // 자신이 만든 리그
+        leaguesQuery = leaguesQuery.eq('created_by', user.id);
+        
+        // 자신이 만든 팀
+        teamsQuery = teamsQuery.eq('created_by', user.id);
+        
+        // 자신이 만든 팀의 ID 목록 가져오기
+        const { data: userTeams } = await supabase
+          .from('teams')
+          .select('id')
+          .eq('created_by', user.id);
+        
+        const userTeamIds = userTeams?.map(t => t.id) || [];
+        
+        // 자신이 만든 팀에 속한 선수들
+        if (userTeamIds.length > 0) {
+          playersQuery = playersQuery.in('team_id', userTeamIds);
+        } else {
+          // 팀이 없으면 빈 결과
+          playersQuery = playersQuery.eq('team_id', '00000000-0000-0000-0000-000000000000');
+        }
+        
+        // 자신이 만든 팀이 참여한 경기들
+        if (userTeamIds.length > 0) {
+          // home_team_id 또는 away_team_id가 userTeamIds에 포함된 경기
+          // Supabase의 or 조건 사용
+          matchesQuery = matchesQuery.or(
+            `home_team_id.in.(${userTeamIds.join(',')}),away_team_id.in.(${userTeamIds.join(',')})`
+          );
+        } else {
+          // 팀이 없으면 빈 결과를 위해 존재하지 않는 ID로 필터링
+          matchesQuery = matchesQuery.eq('home_team_id', '00000000-0000-0000-0000-000000000000');
+        }
+      }
+
       // 전체 통계
       const [leaguesResult, teamsResult, playersResult, matchesResult] = await Promise.all([
-        supabase.from('leagues').select('*'),
-        supabase.from('teams').select('*'),
-        supabase.from('players').select('*'),
-        supabase.from('matches').select('*'),
+        leaguesQuery,
+        teamsQuery,
+        playersQuery,
+        matchesQuery,
       ]);
 
       const leagues = leaguesResult.data || [];
@@ -342,9 +391,14 @@ export default function DashboardPage() {
         {/* 헤더 */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">관리자 대시보드</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {isSuperAdmin ? '관리자 대시보드' : '내 대시보드'}
+            </h1>
             <p className="text-gray-600 dark:text-gray-300">
               안녕하세요, {displayName}님!
+              {isSuperAdmin 
+                ? ' 전체 시스템을 관리할 수 있습니다.' 
+                : ' 내가 만든 리그, 팀, 선수, 경기 정보를 확인할 수 있습니다.'}
             </p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">
