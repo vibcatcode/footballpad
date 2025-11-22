@@ -24,7 +24,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useEffect, useMemo, useState } from 'react';
 
-const SUPER_ADMIN_EMAILS = ['geedojo@gmail.com'] as const;
+const SUPER_ADMIN_EMAILS: readonly string[] = ['geedojo@gmail.com'];
 type MemberRole = 'admin' | 'manager' | 'user';
 const ROLE_LABELS: Record<MemberRole, string> = {
   admin: '관리자',
