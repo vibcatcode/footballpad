@@ -21,9 +21,9 @@ export function KoreanCalendar({
   const defaultFormatters = React.useMemo<Partial<Formatters>>(
     () => ({
       formatWeekdayName: (date, options) => {
-        const activeLocale: Locale | undefined = options?.locale ?? locale
+        const activeLocale: Partial<Locale> | undefined = options?.locale ?? locale
         const localized =
-          activeLocale?.localize?.day?.(date.getDay(), { width: "narrow" })
+          activeLocale?.localize?.day?.(date.getDay() as any, { width: "narrow" })
 
         if (localized) {
           return localized
