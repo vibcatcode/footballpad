@@ -90,12 +90,6 @@ export default function AdminPage() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (isSuperAdmin) {
-      fetchMembers();
-    }
-  }, [isSuperAdmin]);
-
   const fetchProfile = async () => {
     if (!user) return;
     try {
@@ -107,6 +101,11 @@ export default function AdminPage() {
 
       if (error) {
         console.error('Error fetching profile:', error);
+        // 프로필이 없어도 최고관리자 이메일이면 계속 진행
+        if (!isSuperAdminEmail(user.email)) {
+          router.push('/dashboard');
+        }
+        setLoading(false);
         return;
       }
 
@@ -115,9 +114,18 @@ export default function AdminPage() {
         setProfile(casted);
         if (!isSuperAdminEmail(user.email) && casted.role !== 'admin') {
           router.push('/dashboard');
+          setLoading(false);
+          return;
         }
       } else if (!isSuperAdminEmail(user.email)) {
         router.push('/dashboard');
+        setLoading(false);
+        return;
+      }
+      
+      // 최고 관리자인 경우 회원 목록도 함께 불러오기
+      if (isSuperAdminEmail(user.email) || data?.role === 'admin') {
+        fetchMembers();
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -129,6 +137,7 @@ export default function AdminPage() {
   const fetchMembers = async () => {
     setMembersLoading(true);
     try {
+      // RLS 정책이 제대로 작동하는지 확인하기 위해 에러를 상세히 로깅
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -136,17 +145,36 @@ export default function AdminPage() {
 
       if (error) {
         console.error('Error fetching members:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+        setFeedback({
+          type: 'error',
+          message: `회원 목록을 불러오는데 실패했습니다: ${error.message}`,
+        });
         return;
       }
 
-      // public.users에 없는 auth.users 사용자들을 확인하고 추가
-      // (서버 사이드에서 처리하는 것이 더 안전하지만, 클라이언트에서도 시도)
-      const publicUserIds = new Set((data || []).map((u: any) => u.id));
+      console.log('Fetched members:', data?.length || 0);
       
       // email_confirmed_at는 public.users에 저장되어 있거나 null일 수 있음
       setMembers((data || []) as MemberProfile[]);
-    } catch (error) {
+      
+      if (!data || data.length === 0) {
+        setFeedback({
+          type: 'error',
+          message: '회원 목록이 비어있습니다. RLS 정책을 확인해주세요.',
+        });
+      }
+    } catch (error: any) {
       console.error('Error fetching members:', error);
+      setFeedback({
+        type: 'error',
+        message: `회원 목록을 불러오는데 실패했습니다: ${error?.message || '알 수 없는 오류'}`,
+      });
     } finally {
       setMembersLoading(false);
     }

@@ -166,42 +166,59 @@ export default function DashboardPage() {
 
   const handleAccountSave = async () => {
     if (!user) return;
+    
+    // 입력값 검증
+    if (!accountForm.username || accountForm.username.trim() === '') {
+      setFeedback({
+        type: 'error',
+        message: '사용자 이름을 입력해주세요.',
+      });
+      return;
+    }
+    
     setAccountSaving(true);
     setFeedback(null);
     try {
-      const { error } = await supabase
+      const updateData: {
+        username: string;
+        full_name: string | null;
+        updated_at: string;
+      } = {
+        username: accountForm.username.trim(),
+        full_name: accountForm.full_name?.trim() || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
         .from('users')
-        .update({
-          username: accountForm.username,
-          full_name: accountForm.full_name,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+        .update(updateData)
+        .eq('id', user.id)
+        .select()
+        .single();
 
       if (error) {
+        console.error('Error updating account:', error);
         throw error;
       }
 
-      setProfile(prev =>
-        prev
-          ? {
-              ...prev,
-              username: accountForm.username,
-              full_name: accountForm.full_name,
-              updated_at: new Date().toISOString(),
-            }
-          : prev
-      );
+      if (data) {
+        const casted = data as MemberProfile;
+        setProfile(casted);
+        setAccountForm({
+          username: casted.username ?? '',
+          full_name: casted.full_name ?? '',
+        });
+      }
 
       setFeedback({
         type: 'success',
         message: '계정 정보가 업데이트되었습니다.',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating account:', error);
       setFeedback({
         type: 'error',
-        message: '계정 정보를 저장하지 못했습니다. 다시 시도해주세요.',
+        message: error?.message || '계정 정보를 저장하지 못했습니다. 다시 시도해주세요.',
       });
     } finally {
       setAccountSaving(false);
