@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Users, 
-  Plus, 
+import {
+  Users,
+  Plus,
   Upload,
   MapPin,
   Calendar,
@@ -29,12 +29,12 @@ export default function CreateTeamPage() {
     website: '',
     primaryColor: '#1E40AF',
     secondaryColor: '#F3F4F6',
-    visibility: 'public' as 'public' | 'private' | 'unlisted'
+    visibility: 'public' as 'public' | 'private'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
@@ -93,9 +93,9 @@ export default function CreateTeamPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="teamName">팀명 *</Label>
-                      <Input 
-                        id="teamName" 
-                        placeholder="팀명을 입력하세요" 
+                      <Input
+                        id="teamName"
+                        placeholder="팀명을 입력하세요"
                         value={formData.name}
                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                         required
@@ -103,9 +103,9 @@ export default function CreateTeamPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="shortName">팀 약칭</Label>
-                      <Input 
-                        id="shortName" 
-                        placeholder="예: FC서울" 
+                      <Input
+                        id="shortName"
+                        placeholder="예: FC서울"
                         value={formData.shortName}
                         onChange={(e) => setFormData(prev => ({ ...prev, shortName: e.target.value }))}
                       />
@@ -114,8 +114,8 @@ export default function CreateTeamPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="description">팀 소개</Label>
-                    <Textarea 
-                      id="description" 
+                    <Textarea
+                      id="description"
                       placeholder="팀에 대한 간단한 소개를 작성해주세요"
                       rows={3}
                       value={formData.description}
@@ -128,9 +128,9 @@ export default function CreateTeamPage() {
                       <Label htmlFor="location">연고지</Label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="location" 
-                          placeholder="예: 서울특별시" 
+                        <Input
+                          id="location"
+                          placeholder="예: 서울특별시"
                           className="pl-10"
                           value={formData.location}
                           onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
@@ -141,9 +141,9 @@ export default function CreateTeamPage() {
                       <Label htmlFor="founded">창단년도</Label>
                       <div className="relative">
                         <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="founded" 
-                          placeholder="예: 1983" 
+                        <Input
+                          id="founded"
+                          placeholder="예: 1983"
                           className="pl-10"
                           value={formData.foundedYear}
                           onChange={(e) => setFormData(prev => ({ ...prev, foundedYear: e.target.value }))}
@@ -154,8 +154,8 @@ export default function CreateTeamPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="website">웹사이트</Label>
-                    <Input 
-                      id="website" 
+                    <Input
+                      id="website"
                       placeholder="https://example.com"
                       value={formData.website}
                       onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
@@ -168,7 +168,6 @@ export default function CreateTeamPage() {
                       value={formData.visibility}
                       onChange={(value) => setFormData(prev => ({ ...prev, visibility: value }))}
                       label="팀 공개 설정"
-                      description="공개 팀은 모든 사용자가 볼 수 있고, 비공개 팀은 링크를 아는 사람만 볼 수 있습니다."
                     />
                   </div>
 

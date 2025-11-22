@@ -10,9 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { KoreanCalendar } from '@/components/ui/korean-calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { 
-  Trophy, 
-  ArrowLeft, 
+import {
+  Trophy,
+  ArrowLeft,
   Calendar as CalendarIcon,
   Users,
   Settings,
@@ -40,12 +40,12 @@ export default function CreateLeaguePage() {
     lossPoints: 0,
     venue: '',
     timeSlot: '19:00',
-    visibility: 'public' as 'public' | 'private' | 'unlisted'
+    visibility: 'public' as 'public' | 'private'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       alert('로그인이 필요합니다.');
       return;
@@ -309,7 +309,6 @@ export default function CreateLeaguePage() {
                     value={formData.visibility}
                     onChange={(value) => handleInputChange('visibility', value)}
                     label="리그 공개 설정"
-                    description="공개 리그는 모든 사용자가 볼 수 있고, 비공개 리그는 링크를 아는 사람만 볼 수 있습니다."
                   />
                 </CardContent>
               </Card>
