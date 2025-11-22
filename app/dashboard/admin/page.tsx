@@ -139,6 +139,10 @@ export default function AdminPage() {
         return;
       }
 
+      // public.users에 없는 auth.users 사용자들을 확인하고 추가
+      // (서버 사이드에서 처리하는 것이 더 안전하지만, 클라이언트에서도 시도)
+      const publicUserIds = new Set((data || []).map((u: any) => u.id));
+      
       // email_confirmed_at는 public.users에 저장되어 있거나 null일 수 있음
       setMembers((data || []) as MemberProfile[]);
     } catch (error) {
