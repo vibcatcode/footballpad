@@ -19,6 +19,9 @@ import {
   Search,
   RefreshCw,
   AlertTriangle,
+  FileText,
+  Image,
+  Video,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useMemo, useState } from 'react';
@@ -62,6 +65,28 @@ interface MemberProfile {
   banned_until?: string | null;
 }
 
+interface Post {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string | null;
+  type: 'text' | 'image' | 'video';
+  thumbnail_url: string | null;
+  media_url: string | null;
+  likes_count: number;
+  comments_count: number;
+  shares_count: number;
+  tags: string[];
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    email: string;
+    username: string;
+    full_name: string | null;
+  };
+}
+
 export default function AdminPage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -75,6 +100,11 @@ export default function AdminPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [banningId, setBanningId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(false);
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [postSearchQuery, setPostSearchQuery] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState<string | 'all'>('all');
 
   const isSuperAdminEmail = (email?: string | null) =>
     !!email && SUPER_ADMIN_EMAILS.includes(email);
@@ -135,9 +165,10 @@ export default function AdminPage() {
         return;
       }
       
-      // 최고 관리자인 경우 회원 목록도 함께 불러오기
+      // 최고 관리자인 경우 회원 목록과 게시물 목록도 함께 불러오기
       if (isSuperAdminEmail(user.email) || data?.role === 'admin') {
         fetchMembers();
+        fetchPosts();
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -235,7 +266,7 @@ export default function AdminPage() {
   };
 
   const handleDeleteMember = async (memberId: string, memberEmail: string) => {
-    if (!confirm(`정말로 ${memberEmail} 회원을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+    if (!confirm(`정말로 ${memberEmail} 회원을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없으며, 해당 회원이 작성한 모든 게시물도 함께 삭제됩니다.`)) {
       return;
     }
 
@@ -247,7 +278,13 @@ export default function AdminPage() {
     setDeletingId(memberId);
     setFeedback(null);
     try {
-      // public.users 테이블에서 삭제
+      // 먼저 해당 회원의 게시물 수 확인
+      const { count: postsCount } = await supabase
+        .from('posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', memberId);
+
+      // public.users 테이블에서 삭제 (CASCADE로 게시물도 자동 삭제됨)
       const { error: userError } = await supabase
         .from('users')
         .delete()
@@ -259,10 +296,11 @@ export default function AdminPage() {
 
       // auth.users에서도 삭제 (Supabase Admin API 필요, 여기서는 public.users만 삭제)
       setMembers(prev => prev.filter(member => member.id !== memberId));
+      setPosts(prev => prev.filter(post => post.user_id !== memberId));
 
       setFeedback({
         type: 'success',
-        message: '회원이 삭제되었습니다.',
+        message: `회원이 삭제되었습니다.${postsCount ? ` (관련 게시물 ${postsCount}개도 함께 삭제됨)` : ''}`,
       });
     } catch (error) {
       console.error('Error deleting member:', error);
@@ -272,6 +310,87 @@ export default function AdminPage() {
       });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const fetchPosts = async () => {
+    setPostsLoading(true);
+    try {
+      let query = supabase
+        .from('posts')
+        .select(`
+          *,
+          user:users(id, email, username, full_name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (selectedUserId !== 'all') {
+        query = query.eq('user_id', selectedUserId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching posts:', error);
+        setFeedback({
+          type: 'error',
+          message: `게시물 목록을 불러오는데 실패했습니다: ${error.message}`,
+        });
+        return;
+      }
+
+      const postsWithUser = (data || []).map((post: any) => ({
+        ...post,
+        user: post.user ? {
+          email: post.user.email,
+          username: post.user.username,
+          full_name: post.user.full_name,
+        } : undefined,
+      }));
+
+      setPosts(postsWithUser as Post[]);
+    } catch (error: any) {
+      console.error('Error fetching posts:', error);
+      setFeedback({
+        type: 'error',
+        message: `게시물 목록을 불러오는데 실패했습니다: ${error?.message || '알 수 없는 오류'}`,
+      });
+    } finally {
+      setPostsLoading(false);
+    }
+  };
+
+  const handleDeletePost = async (postId: string, postTitle: string) => {
+    if (!confirm(`정말로 "${postTitle}" 게시물을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+
+    setDeletingPostId(postId);
+    setFeedback(null);
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) {
+        throw error;
+      }
+
+      setPosts(prev => prev.filter(post => post.id !== postId));
+
+      setFeedback({
+        type: 'success',
+        message: '게시물이 삭제되었습니다.',
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setFeedback({
+        type: 'error',
+        message: '게시물 삭제에 실패했습니다.',
+      });
+    } finally {
+      setDeletingPostId(null);
     }
   };
 
@@ -324,6 +443,8 @@ export default function AdminPage() {
       return matchesSearch && matchesRole;
     });
   }, [members, searchQuery, roleFilter]);
+
+  // 게시물 필터링은 렌더링 시점에 처리 (useMemo 대신)
 
   if (!user) {
     return (
@@ -638,6 +759,171 @@ export default function AdminPage() {
                 </Table>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* 게시물 관리 */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>게시물 관리</CardTitle>
+            <CardDescription>
+              총 {posts.length}개의 게시물이 표시됩니다.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* 게시물 검색 및 필터 */}
+            <div className="grid gap-4 md:grid-cols-2 mb-6">
+              <div className="space-y-2">
+                <Label htmlFor="post-search">게시물 검색</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="post-search"
+                    placeholder="제목, 내용으로 검색..."
+                    value={postSearchQuery}
+                    onChange={e => setPostSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="post-user-filter">작성자 필터</Label>
+                <Select value={selectedUserId} onValueChange={value => setSelectedUserId(value as string | 'all')}>
+                  <SelectTrigger id="post-user-filter">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">전체 작성자</SelectItem>
+                    {members.map(member => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.full_name || member.username || member.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex justify-end mb-4">
+              <Button variant="outline" size="sm" onClick={fetchPosts} disabled={postsLoading}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${postsLoading ? 'animate-spin' : ''}`} />
+                새로고침
+              </Button>
+            </div>
+
+            {postsLoading ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                게시물 목록을 불러오는 중입니다...
+              </div>
+            ) : (() => {
+              const filteredPosts = posts.filter(post => {
+                const matchesSearch =
+                  post.title.toLowerCase().includes(postSearchQuery.toLowerCase()) ||
+                  post.content?.toLowerCase().includes(postSearchQuery.toLowerCase()) ||
+                  post.user?.username?.toLowerCase().includes(postSearchQuery.toLowerCase());
+                const matchesUser = selectedUserId === 'all' || post.user_id === selectedUserId;
+                return matchesSearch && matchesUser;
+              });
+
+              return filteredPosts.length === 0 ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  {postSearchQuery || selectedUserId !== 'all' ? '검색 결과가 없습니다.' : '등록된 게시물이 없습니다.'}
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>게시물 정보</TableHead>
+                        <TableHead>작성자</TableHead>
+                        <TableHead>유형</TableHead>
+                        <TableHead>통계</TableHead>
+                        <TableHead>작성일</TableHead>
+                        <TableHead className="text-right">관리</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredPosts.map(post => (
+                        <TableRow key={post.id}>
+                          <TableCell>
+                            <div className="font-medium line-clamp-2">{post.title}</div>
+                            {post.content && (
+                              <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
+                                {post.content}
+                              </p>
+                            )}
+                            {post.tags && post.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {post.tags.slice(0, 3).map((tag, idx) => (
+                                  <Badge key={idx} variant="secondary" className="text-xs">
+                                    #{tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {post.user?.full_name || post.user?.username || post.user?.email || '알 수 없음'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {post.user?.email}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="flex items-center gap-1 w-fit">
+                              {post.type === 'video' ? (
+                                <>
+                                  <Video className="h-3 w-3" />
+                                  영상
+                                </>
+                              ) : post.type === 'image' ? (
+                                <>
+                                  <Image className="h-3 w-3" />
+                                  사진
+                                </>
+                              ) : (
+                                <>
+                                  <FileText className="h-3 w-3" />
+                                  글
+                                </>
+                              )}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm space-y-1">
+                              <div>👍 {post.likes_count}</div>
+                              <div>💬 {post.comments_count}</div>
+                              <div>📤 {post.shares_count}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{formatKoreanDate(post.created_at)}</TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end">
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeletePost(post.id, post.title)}
+                                disabled={deletingPostId === post.id}
+                              >
+                                {deletingPostId === post.id ? (
+                                  <RefreshCw className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <Trash2 className="h-4 w-4 mr-1" />
+                                    삭제
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>
