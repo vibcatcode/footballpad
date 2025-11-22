@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
+import { KoreanCalendar } from '@/components/ui/korean-calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Trophy, 
@@ -164,7 +164,7 @@ export default function CreateLeaguePage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                          <Calendar
+                          <KoreanCalendar
                             mode="single"
                             selected={formData.startDate}
                             onSelect={(date) => handleInputChange('startDate', date)}
@@ -184,7 +184,7 @@ export default function CreateLeaguePage() {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
-                          <Calendar
+                          <KoreanCalendar
                             mode="single"
                             selected={formData.endDate}
                             onSelect={(date) => handleInputChange('endDate', date)}

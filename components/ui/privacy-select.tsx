@@ -1,52 +1,79 @@
 'use client';
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Eye, EyeOff, Lock } from 'lucide-react'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
+
+type PrivacyValue = 'public' | 'private' | 'unlisted'
+
+const PRIVACY_OPTIONS: Record<
+  PrivacyValue,
+  { label: string; description: string; Icon: typeof Eye; iconClass: string }
+> = {
+  public: {
+    label: '공개',
+    description: '모든 사용자가 볼 수 있습니다',
+    Icon: Eye,
+    iconClass: 'text-green-600',
+  },
+  unlisted: {
+    label: '비공개 (링크 공유)',
+    description: '링크를 아는 사람만 볼 수 있습니다',
+    Icon: EyeOff,
+    iconClass: 'text-yellow-600',
+  },
+  private: {
+    label: '비공개',
+    description: '나만 볼 수 있습니다',
+    Icon: Lock,
+    iconClass: 'text-red-600',
+  },
+}
 
 interface PrivacySelectProps {
-  value: 'public' | 'private' | 'unlisted';
-  onChange: (value: 'public' | 'private' | 'unlisted') => void;
-  label?: string;
-  description?: string;
+  value: PrivacyValue
+  onChange: (value: PrivacyValue) => void
+  label?: string
+  description?: string
 }
 
 export function PrivacySelect({ value, onChange, label = '공개 설정', description }: PrivacySelectProps) {
+  const selectedOption = value ? PRIVACY_OPTIONS[value] : undefined
+
   return (
     <div className="space-y-2">
       <Label htmlFor="privacy">{label}</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue placeholder="공개 설정을 선택하세요" />
+        <SelectTrigger className="w-full justify-between">
+          <SelectValue className="sr-only" placeholder="공개 설정을 선택하세요" />
+          {selectedOption ? (
+            <div className="flex items-center space-x-2">
+              <selectedOption.Icon className={`h-4 w-4 ${selectedOption.iconClass}`} />
+              <span className="font-medium">{selectedOption.label}</span>
+            </div>
+          ) : (
+            <span className="text-muted-foreground">공개 설정을 선택하세요</span>
+          )}
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="public">
-            <div className="flex items-center space-x-2">
-              <Eye className="h-4 w-4 text-green-600" />
-              <div>
-                <div className="font-medium">공개</div>
-                <div className="text-sm text-muted-foreground">모든 사용자가 볼 수 있습니다</div>
+          {Object.entries(PRIVACY_OPTIONS).map(([key, option]) => (
+            <SelectItem key={key} value={key as PrivacyValue} className="data-[state=checked]:bg-accent/40">
+              <div className="flex items-center space-x-2">
+                <option.Icon className={`h-4 w-4 ${option.iconClass}`} />
+                <div>
+                  <div className="font-medium">{option.label}</div>
+                  <div className="text-sm text-muted-foreground">{option.description}</div>
+                </div>
               </div>
-            </div>
-          </SelectItem>
-          <SelectItem value="unlisted">
-            <div className="flex items-center space-x-2">
-              <EyeOff className="h-4 w-4 text-yellow-600" />
-              <div>
-                <div className="font-medium">비공개 (링크 공유)</div>
-                <div className="text-sm text-muted-foreground">링크를 아는 사람만 볼 수 있습니다</div>
-              </div>
-            </div>
-          </SelectItem>
-          <SelectItem value="private">
-            <div className="flex items-center space-x-2">
-              <Lock className="h-4 w-4 text-red-600" />
-              <div>
-                <div className="font-medium">비공개</div>
-                <div className="text-sm text-muted-foreground">나만 볼 수 있습니다</div>
-              </div>
-            </div>
-          </SelectItem>
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
       {description && (
