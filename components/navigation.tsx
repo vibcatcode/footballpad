@@ -137,19 +137,21 @@ export function Navigation() {
 
   useEffect(() => {
     if (user) {
-      supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
+      (async () => {
+        try {
+          const { data } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+          
           if (data) {
             setUserProfile(data);
           }
-        })
-        .catch(() => {
+        } catch {
           // 프로필이 없어도 최고관리자 이메일이면 접근 가능
-        });
+        }
+      })();
     }
   }, [user]);
 
