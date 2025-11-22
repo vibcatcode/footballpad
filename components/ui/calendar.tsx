@@ -26,7 +26,7 @@ function Calendar({
       className={cn("p-3", className)}
       classNames={{
         months: "flex flex-col space-y-4",
-        month: "space-y-4",
+        month: "space-y-4 flex flex-col",
         caption: "flex justify-center pt-1 relative items-center mb-2",
         caption_label: "text-sm font-medium hidden",
         caption_dropdowns: "flex gap-2 justify-center items-center",
@@ -43,7 +43,7 @@ function Calendar({
         table: "w-full border-collapse",
         head_row: "grid grid-cols-7 mb-2",
         head_cell: "text-muted-foreground rounded-md font-semibold text-[0.875rem] py-2 text-center first:text-red-500",
-        row: "grid grid-cols-7 mt-2 [&>*:nth-child(1)>button]:text-red-500",
+        row: "grid grid-cols-7 first:mt-0 [&>*:nth-child(1)>button]:text-red-500",
         cell: cn(
           "h-9 w-full text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20"
         ),
