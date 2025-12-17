@@ -34,10 +34,6 @@ export default function CreateLeaguePage() {
     startDate: undefined as Date | undefined,
     endDate: undefined as Date | undefined,
     gameCycle: 'weekly',
-    maxGames: 20,
-    winPoints: 3,
-    drawPoints: 1,
-    lossPoints: 0,
     venue: '',
     timeSlot: '19:00',
     visibility: 'public' as 'public' | 'private'
@@ -60,7 +56,6 @@ export default function CreateLeaguePage() {
           season: formData.season,
           start_date: formData.startDate?.toISOString().split('T')[0],
           end_date: formData.endDate?.toISOString().split('T')[0],
-          max_teams: formData.maxGames,
           created_by: user.id,
           is_public: formData.visibility === 'public',
           visibility: formData.visibility,
@@ -125,7 +120,7 @@ export default function CreateLeaguePage() {
                     <Label htmlFor="name">리그명 *</Label>
                     <Input
                       id="name"
-                      placeholder="예: 호산나 프리미어리그 2025"
+                      placeholder="리그명을 입력하세요"
                       value={formData.name}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       required
@@ -155,7 +150,7 @@ export default function CreateLeaguePage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>시작일 *</Label>
+                      <Label>시즌 시작일 *</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -175,7 +170,7 @@ export default function CreateLeaguePage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>종료일 *</Label>
+                      <Label>시즌 종료일 *</Label>
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button variant="outline" className="w-full justify-start text-left font-normal">
@@ -224,58 +219,10 @@ export default function CreateLeaguePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="maxGames">최대 경기 수</Label>
-                    <Input
-                      id="maxGames"
-                      type="number"
-                      min="1"
-                      max="100"
-                      value={formData.maxGames}
-                      onChange={(e) => handleInputChange('maxGames', parseInt(e.target.value))}
-                    />
-                  </div>
-
-                  <div className="space-y-4">
-                    <Label>승점 규칙</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="space-y-1">
-                        <Label htmlFor="winPoints" className="text-xs">승리</Label>
-                        <Input
-                          id="winPoints"
-                          type="number"
-                          min="0"
-                          value={formData.winPoints}
-                          onChange={(e) => handleInputChange('winPoints', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="drawPoints" className="text-xs">무승부</Label>
-                        <Input
-                          id="drawPoints"
-                          type="number"
-                          min="0"
-                          value={formData.drawPoints}
-                          onChange={(e) => handleInputChange('drawPoints', parseInt(e.target.value))}
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <Label htmlFor="lossPoints" className="text-xs">패배</Label>
-                        <Input
-                          id="lossPoints"
-                          type="number"
-                          min="0"
-                          value={formData.lossPoints}
-                          onChange={(e) => handleInputChange('lossPoints', parseInt(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="venue">기본 경기장</Label>
                     <Input
                       id="venue"
-                      placeholder="예: 호산나축구장"
+                      placeholder="예: 풋볼 아레나"
                       value={formData.venue}
                       onChange={(e) => handleInputChange('venue', e.target.value)}
                     />
