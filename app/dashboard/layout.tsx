@@ -19,7 +19,14 @@ import { useEffect, useMemo, useState } from 'react';
 
 const SUPER_ADMIN_EMAILS: readonly string[] = ['geedojo@gmail.com'];
 
-const userSidebarMenuItems = [
+type SidebarMenuItem = {
+  title: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  subItems?: Array<{ title: string; href: string }>;
+};
+
+const userSidebarMenuItems: SidebarMenuItem[] = [
   {
     title: '대시보드',
     href: '/dashboard',
@@ -86,7 +93,7 @@ const userSidebarMenuItems = [
   },
 ];
 
-const adminSidebarMenuItems = [
+const adminSidebarMenuItems: SidebarMenuItem[] = [
   {
     title: '관리자 대시보드',
     href: '/dashboard/admin',
