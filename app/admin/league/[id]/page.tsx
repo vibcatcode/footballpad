@@ -2,335 +2,593 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getLeague, saveLeague, generateId } from '@/lib/data';
-import { League, Team, Season, Match } from '@/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+import { Trophy, ArrowLeft, Users, Calendar, Settings, Plus, Trash2, Edit, Play } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+
+interface League {
+  id: string;
+  name: string;
+  description: string | null;
+  season: string;
+  status: 'draft' | 'active' | 'completed' | 'cancelled';
+  start_date: string | null;
+  end_date: string | null;
+  created_by: string;
+  is_public: boolean;
+  visibility: 'public' | 'private' | 'unlisted';
+}
+
+interface Team {
+  id: string;
+  name: string;
+  short_name: string | null;
+}
+
+interface Match {
+  id: string;
+  league_id: string;
+  home_team_id: string;
+  away_team_id: string;
+  match_date: string;
+  venue: string | null;
+  status: string;
+  home_score: number | null;
+  away_score: number | null;
+  youtube: string | null;
+  home_team?: {
+    id: string;
+    name: string;
+  };
+  away_team?: {
+    id: string;
+    name: string;
+  };
+}
+
+interface Participant {
+  id: string;
+  league_id: string;
+  user_id: string;
+  team_id: string | null;
+  role: 'participant' | 'manager' | 'admin';
+  status: 'pending' | 'approved' | 'rejected' | 'banned';
+  user?: {
+    id: string;
+    email: string;
+    username: string;
+    full_name: string | null;
+  };
+  team?: {
+    id: string;
+    name: string;
+  };
+}
 
 export default function LeagueDetailAdminPage() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
   const [league, setLeague] = useState<League | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [matches, setMatches] = useState<Match[]>([]);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    const leagueId = params.id as string;
-    const loadedLeague = getLeague(leagueId);
-    if (!loadedLeague) {
-      router.push('/admin');
-      return;
+    if (params.id && user) {
+      fetchLeague();
     }
-    setLeague(loadedLeague);
-    loadLeagueData(loadedLeague);
-  }, [params.id, router]);
+  }, [params.id, user]);
 
-  const loadLeagueData = (leagueData: League) => {
-    // 팀 데이터 로드
-    const teamsData = (typeof window !== 'undefined' && localStorage.getItem(`teams_${leagueData.id}`))
-      ? JSON.parse(localStorage.getItem(`teams_${leagueData.id}`)!)
-      : [];
-    setTeams(teamsData);
+  const fetchLeague = async () => {
+    const leagueId = params.id as string;
+    setLoading(true);
 
-    // 시즌 데이터 로드
-    const seasonsData = (typeof window !== 'undefined' && localStorage.getItem(`seasons_${leagueData.id}`))
-      ? JSON.parse(localStorage.getItem(`seasons_${leagueData.id}`)!)
-      : [];
-    setSeasons(seasonsData);
+    try {
+      // 리그 정보 가져오기
+      const { data: leagueData, error: leagueError } = await supabase
+        .from('leagues')
+        .select('*')
+        .eq('id', leagueId)
+        .single();
+
+      if (leagueError || !leagueData) {
+        router.push('/leagues');
+        return;
+      }
+
+      // 권한 체크
+      if (leagueData.created_by !== user?.id) {
+        router.push(`/league/${leagueId}`);
+        return;
+      }
+
+      setLeague(leagueData as League);
+
+      // 관련 데이터 가져오기
+      await Promise.all([
+        fetchTeams(leagueId),
+        fetchMatches(leagueId),
+        fetchParticipants(leagueId)
+      ]);
+    } catch (error) {
+      console.error('Error fetching league:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!league) return <div className="min-h-screen bg-[#0b0f14] p-8">로딩 중...</div>;
+  const fetchTeams = async (leagueId: string) => {
+    // 리그에 참여한 팀들 가져오기 (경기에서 사용된 팀들)
+    const { data: matchesData } = await supabase
+      .from('matches')
+      .select('home_team_id, away_team_id')
+      .eq('league_id', leagueId);
+
+    const teamIds = new Set<string>();
+    matchesData?.forEach(match => {
+      if (match.home_team_id) teamIds.add(match.home_team_id);
+      if (match.away_team_id) teamIds.add(match.away_team_id);
+    });
+
+    if (teamIds.size > 0) {
+      const { data: teamsData } = await supabase
+        .from('teams')
+        .select('id, name, short_name')
+        .in('id', Array.from(teamIds));
+
+      if (teamsData) {
+        setTeams(teamsData as Team[]);
+      }
+    }
+  };
+
+  const fetchMatches = async (leagueId: string) => {
+    const { data: matchesData } = await supabase
+      .from('matches')
+      .select(`
+        *,
+        home_team:teams!matches_home_team_id_fkey(id, name),
+        away_team:teams!matches_away_team_id_fkey(id, name)
+      `)
+      .eq('league_id', leagueId)
+      .order('match_date', { ascending: true });
+
+    if (matchesData) {
+      setMatches(matchesData as Match[]);
+    }
+  };
+
+  const fetchParticipants = async (leagueId: string) => {
+    const { data: participantsData } = await supabase
+      .from('league_participants')
+      .select(`
+        *,
+        user:users!league_participants_user_id_fkey(id, email, username, full_name),
+        team:teams(id, name)
+      `)
+      .eq('league_id', leagueId)
+      .order('created_at', { ascending: false });
+
+    if (participantsData) {
+      setParticipants(participantsData as Participant[]);
+    }
+  };
+
+  const handleUpdateLeague = async (updates: Partial<League>) => {
+    if (!league) return;
+
+    try {
+      const { error } = await supabase
+        .from('leagues')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', league.id);
+
+      if (error) throw error;
+
+      setLeague({ ...league, ...updates });
+    } catch (error) {
+      console.error('Error updating league:', error);
+      alert('리그 업데이트에 실패했습니다.');
+    }
+  };
+
+  const handleApproveParticipant = async (participantId: string) => {
+    try {
+      const { error } = await supabase
+        .from('league_participants')
+        .update({
+          status: 'approved',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', participantId);
+
+      if (error) throw error;
+
+      fetchParticipants(league!.id);
+    } catch (error) {
+      console.error('Error approving participant:', error);
+      alert('참여자 승인에 실패했습니다.');
+    }
+  };
+
+  const handleRejectParticipant = async (participantId: string) => {
+    try {
+      const { error } = await supabase
+        .from('league_participants')
+        .update({
+          status: 'rejected',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', participantId);
+
+      if (error) throw error;
+
+      fetchParticipants(league!.id);
+    } catch (error) {
+      console.error('Error rejecting participant:', error);
+      alert('참여자 거부에 실패했습니다.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!league) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>리그를 찾을 수 없습니다</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push('/leagues')} className="w-full">
+              리그 목록으로 돌아가기
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-[#0b0f14] text-[#e8eef7] py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8">
+        {/* 헤더 */}
+        <div className="flex items-center gap-4 mb-8">
+          <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            뒤로
+          </Button>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold mb-2">{league.name}</h1>
-            <p className="text-[#9aa7b8]">리그 관리</p>
+            <p className="text-muted-foreground">리그 관리</p>
           </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => router.push('/admin')}
-              className="px-4 py-2 border border-[#1e2633] rounded-lg hover:bg-[#121821] transition-colors"
-            >
-              뒤로
-            </button>
-            <button
-              onClick={() => router.push(`/league/${league.id}`)}
-              className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors"
-            >
-              리그 보기
-            </button>
-          </div>
+          <Button onClick={() => router.push(`/league/${league.id}`)}>
+            <Trophy className="w-4 h-4 mr-2" />
+            리그 보기
+          </Button>
         </div>
 
-        <div className="space-y-8">
-          <TeamManager league={league} teams={teams} onUpdate={() => loadLeagueData(league)} />
-          <SeasonManager league={league} seasons={seasons} teams={teams} onUpdate={() => loadLeagueData(league)} />
-        </div>
-      </div>
-    </div>
-  );
-}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">개요</TabsTrigger>
+            <TabsTrigger value="matches">경기 관리</TabsTrigger>
+            <TabsTrigger value="participants">참여자 관리</TabsTrigger>
+            <TabsTrigger value="settings">설정</TabsTrigger>
+          </TabsList>
 
-function TeamManager({ league, teams, onUpdate }: { league: League; teams: Team[]; onUpdate: () => void }) {
-  const [showForm, setShowForm] = useState(false);
-  const [teamName, setTeamName] = useState('');
-  const [teamColor, setTeamColor] = useState<Team['color']>('white');
-
-  const saveTeam = () => {
-    if (!teamName.trim()) return;
-    
-    const newTeam: Team = {
-      id: generateId(),
-      clubId: league.id, // 임시로 league.id를 clubId로 사용
-      name: teamName,
-      color: teamColor,
-      level: 'intermediate',
-      eloRating: 1200,
-      preferredDays: [],
-      preferredTimes: [],
-      createdAt: new Date().toISOString()
-    };
-    
-    const updatedTeams = [...teams, newTeam];
-    localStorage.setItem(`teams_${league.id}`, JSON.stringify(updatedTeams));
-    
-    const updatedLeague: League = {
-      ...league,
-      teamIds: [...league.teamIds, newTeam.id]
-    };
-    saveLeague(updatedLeague);
-    
-    setTeamName('');
-    setTeamColor('white');
-    setShowForm(false);
-    onUpdate();
-  };
-
-  const deleteTeam = (teamId: string) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    
-    const updatedTeams = teams.filter(t => t.id !== teamId);
-    localStorage.setItem(`teams_${league.id}`, JSON.stringify(updatedTeams));
-    
-    const updatedLeague: League = {
-      ...league,
-      teamIds: league.teamIds.filter(id => id !== teamId)
-    };
-    saveLeague(updatedLeague);
-    onUpdate();
-  };
-
-  const colorClasses = {
-    white: 'bg-white text-[#0b0f14]',
-    blue: 'bg-blue-900 text-white',
-    red: 'bg-red-700 text-white',
-    green: 'bg-green-700 text-white',
-    yellow: 'bg-yellow-600 text-white',
-    purple: 'bg-purple-700 text-white',
-    black: 'bg-black text-white',
-    orange: 'bg-orange-600 text-white'
-  };
-
-  return (
-    <div className="bg-[#121821] border border-[#1e2633] rounded-xl p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">팀 관리</h2>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors"
-          >
-            + 팀 추가
-          </button>
-        )}
-      </div>
-
-      {showForm && (
-        <div className="bg-[#0f1520] rounded-lg p-4 mb-4">
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-2 text-sm text-[#9aa7b8]">팀 이름</label>
-              <input
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className="w-full px-4 py-2 bg-[#121821] border border-[#1e2633] rounded-lg text-[#e8eef7] focus:outline-none focus:border-[#00d18f]"
-                placeholder="예: 믿음, 소망, 사랑"
-              />
+          {/* 개요 */}
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    팀 수
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{teams.length}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Play className="w-5 h-5" />
+                    경기 수
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{matches.length}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    참여자 수
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{participants.filter(p => p.status === 'approved').length}</div>
+                </CardContent>
+              </Card>
             </div>
-            <div>
-              <label className="block mb-2 text-sm text-[#9aa7b8]">팀 색상</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['white', 'blue', 'red', 'green', 'yellow', 'purple', 'black', 'orange'] as Team['color'][]).map(color => (
-                  <button
-                    key={color}
-                    onClick={() => setTeamColor(color)}
-                    className={`px-4 py-2 rounded-lg border-2 ${
-                      teamColor === color ? 'border-[#00d18f]' : 'border-transparent'
-                    } ${colorClasses[color]}`}
+          </TabsContent>
+
+          {/* 경기 관리 */}
+          <TabsContent value="matches">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle>경기 관리</CardTitle>
+                  <Button onClick={() => router.push(`/matches?league=${league.id}`)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    경기 추가
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>날짜</TableHead>
+                        <TableHead>홈 팀</TableHead>
+                        <TableHead>어웨이 팀</TableHead>
+                        <TableHead>스코어</TableHead>
+                        <TableHead>상태</TableHead>
+                        <TableHead className="text-right">관리</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {matches.map(match => (
+                        <TableRow key={match.id}>
+                          <TableCell>
+                            {new Date(match.match_date).toLocaleDateString('ko-KR')}
+                          </TableCell>
+                          <TableCell>{match.home_team?.name || '알 수 없음'}</TableCell>
+                          <TableCell>{match.away_team?.name || '알 수 없음'}</TableCell>
+                          <TableCell>
+                            {match.home_score !== null && match.away_score !== null
+                              ? `${match.home_score} - ${match.away_score}`
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {match.status === 'completed' ? '완료' :
+                               match.status === 'live' ? '진행중' :
+                               match.status === 'cancelled' ? '취소' :
+                               match.status === 'postponed' ? '연기' : '예정'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => router.push(`/matches/${match.id}`)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {matches.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                            아직 경기가 없습니다.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* 참여자 관리 */}
+          <TabsContent value="participants">
+            <Card>
+              <CardHeader>
+                <CardTitle>참여자 관리</CardTitle>
+                <CardDescription>
+                  리그 참여 요청을 승인하거나 거부할 수 있습니다.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>사용자</TableHead>
+                        <TableHead>팀</TableHead>
+                        <TableHead>역할</TableHead>
+                        <TableHead>상태</TableHead>
+                        <TableHead className="text-right">관리</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {participants.map(participant => (
+                        <TableRow key={participant.id}>
+                          <TableCell>
+                            <div className="font-medium">
+                              {participant.user?.full_name || participant.user?.username || participant.user?.email || '알 수 없음'}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {participant.user?.email}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            {participant.team?.name || '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {participant.role === 'admin' ? '관리자' :
+                               participant.role === 'manager' ? '매니저' : '참여자'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge
+                              variant={
+                                participant.status === 'approved' ? 'default' :
+                                participant.status === 'pending' ? 'secondary' :
+                                participant.status === 'rejected' ? 'destructive' : 'outline'
+                              }
+                            >
+                              {participant.status === 'approved' ? '승인됨' :
+                               participant.status === 'pending' ? '대기중' :
+                               participant.status === 'rejected' ? '거부됨' : '차단됨'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {participant.status === 'pending' && (
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleApproveParticipant(participant.id)}
+                                >
+                                  승인
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleRejectParticipant(participant.id)}
+                                >
+                                  거부
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {participants.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                            아직 참여자가 없습니다.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* 설정 */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>리그 설정</CardTitle>
+                <CardDescription>리그 정보를 수정할 수 있습니다.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label>리그명</Label>
+                  <Input
+                    value={league.name}
+                    onChange={(e) => handleUpdateLeague({ name: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value !== league.name) {
+                        handleUpdateLeague({ name: e.target.value });
+                      }
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>시즌명</Label>
+                  <Input
+                    value={league.season}
+                    onChange={(e) => handleUpdateLeague({ season: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value !== league.season) {
+                        handleUpdateLeague({ season: e.target.value });
+                      }
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>설명</Label>
+                  <Textarea
+                    value={league.description || ''}
+                    onChange={(e) => handleUpdateLeague({ description: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value !== (league.description || '')) {
+                        handleUpdateLeague({ description: e.target.value || null });
+                      }
+                    }}
+                    rows={4}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>상태</Label>
+                  <Select
+                    value={league.status}
+                    onValueChange={(value) => handleUpdateLeague({ status: value as any })}
                   >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={saveTeam}
-                className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors"
-              >
-                추가
-              </button>
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setTeamName('');
-                }}
-                className="px-4 py-2 border border-[#1e2633] rounded-lg hover:bg-[#121821] transition-colors"
-              >
-                취소
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {teams.map(team => (
-          <div key={team.id} className="bg-[#0f1520] border border-[#1e2633] rounded-lg p-4">
-            <div className="flex justify-between items-start mb-2">
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-bold ${colorClasses[team.color]}`}>
-                <span className="w-2 h-2 rounded-full bg-current opacity-70"></span>
-                {team.name}
-              </span>
-              <button
-                onClick={() => deleteTeam(team.id)}
-                className="text-red-400 hover:text-red-300 text-sm"
-              >
-                삭제
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function SeasonManager({ league, seasons, teams, onUpdate }: { league: League; seasons: Season[]; teams: Team[]; onUpdate: () => void }) {
-  const [showForm, setShowForm] = useState(false);
-  const [seasonLabel, setSeasonLabel] = useState('');
-  const [yearMonth, setYearMonth] = useState('');
-
-  const saveSeason = () => {
-    if (!seasonLabel.trim() || !yearMonth.trim()) return;
-    
-    const newSeason: Season = {
-      id: generateId(),
-      clubId: league.id, // 임시로 league.id를 clubId로 사용
-      name: seasonLabel,
-      type: 'league',
-      startDate: yearMonth + '-01',
-      endDate: yearMonth + '-31',
-      status: 'upcoming',
-      teams: [],
-      rounds: [],
-      matches: [],
-      settings: {
-        pointsForWin: 3,
-        pointsForDraw: 1,
-        maxPlayersPerTeam: 11,
-        allowSubstitutions: true,
-        extraTime: false,
-        penalties: false
-      },
-      createdAt: new Date().toISOString()
-    };
-    
-    const updatedSeasons = [...seasons, newSeason];
-    localStorage.setItem(`seasons_${league.id}`, JSON.stringify(updatedSeasons));
-    
-    const updatedLeague: League = {
-      ...league,
-      seasonIds: [...league.seasonIds, newSeason.id]
-    };
-    saveLeague(updatedLeague);
-    
-    setSeasonLabel('');
-    setYearMonth('');
-    setShowForm(false);
-    onUpdate();
-  };
-
-  return (
-    <div className="bg-[#121821] border border-[#1e2633] rounded-xl p-6">
-      <h2 className="text-xl font-bold mb-4">시즌 관리</h2>
-      {!showForm ? (
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors"
-        >
-          + 시즌 추가
-        </button>
-      ) : (
-        <div className="bg-[#0f1520] rounded-lg p-4 space-y-4">
-          <div>
-            <label className="block mb-2 text-sm text-[#9aa7b8]">시즌 이름</label>
-            <input
-              type="text"
-              value={seasonLabel}
-              onChange={(e) => setSeasonLabel(e.target.value)}
-              className="w-full px-4 py-2 bg-[#121821] border border-[#1e2633] rounded-lg text-[#e8eef7] focus:outline-none focus:border-[#00d18f]"
-              placeholder="예: 2025년 1월"
-            />
-          </div>
-          <div>
-            <label className="block mb-2 text-sm text-[#9aa7b8]">연도-월 (YYYY-MM)</label>
-            <input
-              type="text"
-              value={yearMonth}
-              onChange={(e) => setYearMonth(e.target.value)}
-              className="w-full px-4 py-2 bg-[#121821] border border-[#1e2633] rounded-lg text-[#e8eef7] focus:outline-none focus:border-[#00d18f]"
-              placeholder="예: 2025-01"
-            />
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={saveSeason}
-              className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors"
-            >
-              추가
-            </button>
-            <button
-              onClick={() => {
-                setShowForm(false);
-                setSeasonLabel('');
-                setYearMonth('');
-              }}
-              className="px-4 py-2 border border-[#1e2633] rounded-lg hover:bg-[#121821] transition-colors"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-6 space-y-2">
-        {seasons.map(season => (
-          <div key={season.id} className="bg-[#0f1520] border border-[#1e2633] rounded-lg p-4 flex justify-between items-center">
-            <div>
-              <h3 className="font-bold">{season.name}</h3>
-              <p className="text-sm text-[#9aa7b8]">{season.startDate}</p>
-            </div>
-            <a
-              href={`/admin/season/${season.id}`}
-              className="px-4 py-2 bg-[#00d18f] text-[#0b0f14] font-bold rounded-lg hover:bg-[#0aa77f] transition-colors inline-block"
-            >
-              관리
-            </a>
-          </div>
-        ))}
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">초안</SelectItem>
+                      <SelectItem value="active">진행중</SelectItem>
+                      <SelectItem value="completed">완료</SelectItem>
+                      <SelectItem value="cancelled">취소</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>공개 설정</Label>
+                  <Select
+                    value={league.visibility}
+                    onValueChange={(value) => handleUpdateLeague({ visibility: value as any, is_public: value === 'public' })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">공개</SelectItem>
+                      <SelectItem value="private">비공개</SelectItem>
+                      <SelectItem value="unlisted">목록 제외</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
