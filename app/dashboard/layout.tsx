@@ -14,8 +14,12 @@ import {
   TrendingUp,
   Home,
 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { useEffect, useMemo, useState } from 'react';
 
-const sidebarMenuItems = [
+const SUPER_ADMIN_EMAILS: readonly string[] = ['geedojo@gmail.com'];
+
+const userSidebarMenuItems = [
   {
     title: '대시보드',
     href: '/dashboard',
@@ -82,6 +86,39 @@ const sidebarMenuItems = [
   },
 ];
 
+const adminSidebarMenuItems = [
+  {
+    title: '관리자 대시보드',
+    href: '/dashboard/admin',
+    icon: LayoutDashboard,
+  },
+  {
+    title: '모든 리그 관리',
+    href: '/dashboard/my-leagues',
+    icon: Trophy,
+  },
+  {
+    title: '모든 팀 관리',
+    href: '/dashboard/my-teams',
+    icon: Users,
+  },
+  {
+    title: '모든 전술 관리',
+    href: '/dashboard/my-tactics',
+    icon: BarChart3,
+  },
+  {
+    title: '모든 선수 관리',
+    href: '/dashboard/my-players',
+    icon: UserIcon,
+  },
+  {
+    title: '모든 통계 관리',
+    href: '/dashboard/my-reports',
+    icon: TrendingUp,
+  },
+];
+
 export default function DashboardLayout({
   children,
 }: {
@@ -89,10 +126,68 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const isSuperAdminEmail = (email?: string | null) =>
+    !!email && SUPER_ADMIN_EMAILS.includes(email);
+
+  const isSuperAdmin = useMemo(
+    () => isSuperAdminEmail(user?.email) || profile?.role === 'admin',
+    [user?.email, profile?.role]
+  );
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, email, username, full_name, role, created_at, updated_at')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        if (!isSuperAdminEmail(user.email)) {
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (data) {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!user) {
     return <>{children}</>;
   }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const sidebarMenuItems = isSuperAdmin ? adminSidebarMenuItems : userSidebarMenuItems;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -100,12 +195,14 @@ export default function DashboardLayout({
         {/* 왼쪽 사이드바 - 내 관리 메뉴 */}
         <aside className="hidden lg:flex flex-col w-64 min-h-screen bg-background border-r border-border sticky top-0">
           <div className="p-6 border-b border-border">
-            <Link href="/dashboard" className="flex items-center space-x-2">
+            <Link href={isSuperAdmin ? "/dashboard/admin" : "/dashboard"} className="flex items-center space-x-2">
               <LayoutDashboard className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">내 관리</span>
+              <span className="text-lg font-bold">{isSuperAdmin ? '관리자 대시보드' : '내 관리'}</span>
             </Link>
             <p className="text-xs text-muted-foreground mt-1">
-              내가 만든 리그, 팀, 선수, 경기 등을 관리합니다
+              {isSuperAdmin 
+                ? '사이트의 모든 리그, 팀, 전술, 선수, 통계를 관리합니다'
+                : '내가 만든 리그, 팀, 선수, 경기 등을 관리합니다'}
             </p>
           </div>
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
