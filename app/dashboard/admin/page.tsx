@@ -22,6 +22,11 @@ import {
   FileText,
   Image,
   Video,
+  Trophy,
+  Calendar,
+  User as UserIcon,
+  BarChart3,
+  TrendingUp,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useMemo, useState } from 'react';
@@ -761,6 +766,111 @@ export default function AdminPage() {
             )}
           </CardContent>
         </Card>
+
+        {/* 데이터 관리 섹션 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="w-5 h-5" />
+                모든 리그 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 리그를 조회하고 관리합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-leagues">
+                  리그 관리하기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                모든 팀 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 팀을 조회하고 관리합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-teams">
+                  팀 관리하기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                모든 경기 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 경기를 조회하고 관리합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-matches">
+                  경기 관리하기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserIcon className="w-5 h-5" />
+                모든 선수 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 선수를 조회하고 관리합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-players">
+                  선수 관리하기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                모든 전술 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 전술을 조회하고 관리합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-tactics">
+                  전술 관리하기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5" />
+                모든 통계 관리
+              </CardTitle>
+              <CardDescription>사이트의 모든 통계를 조회합니다</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" asChild>
+                <a href="/dashboard/my-reports">
+                  통계 보기
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* 게시물 관리 */}
         <Card className="mt-8">
