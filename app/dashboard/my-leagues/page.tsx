@@ -438,7 +438,7 @@ export default function MyLeaguesPage() {
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
                           <Button variant="outline" size="sm" asChild>
-                            <Link href={`/leagues/${league.id}`}>보기</Link>
+                            <Link href={`/league/${league.id}`}>보기</Link>
                           </Button>
                           {isSuperAdmin && (
                             <>
