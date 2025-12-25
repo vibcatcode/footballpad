@@ -9,11 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { KoreanCalendar } from '@/components/ui/korean-calendar';
 import { supabase } from '@/lib/supabase';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { 
   User, 
   Save, 
@@ -83,7 +79,9 @@ export default function ProfilePage() {
     jersey_number: null as number | null,
     position: 'CM' as 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LW' | 'RW' | 'ST',
     birth_date: '',
-    birthDate: undefined as Date | undefined,
+    birth_year: '',
+    birth_month: '',
+    birth_day: '',
     nationality: '한국',
     height: null as number | null,
     weight: null as number | null,
@@ -135,13 +133,16 @@ export default function ProfilePage() {
       if (playerData) {
         setPlayerProfile(playerData);
         setHasPlayerProfile(true);
+        const birthDate = playerData.birth_date ? new Date(playerData.birth_date) : null;
         setPlayerForm({
           first_name: playerData.first_name || '',
           last_name: playerData.last_name || '',
           jersey_number: playerData.jersey_number || null,
           position: playerData.position || 'CM',
           birth_date: playerData.birth_date || '',
-          birthDate: playerData.birth_date ? new Date(playerData.birth_date) : undefined,
+          birth_year: birthDate ? birthDate.getFullYear().toString() : '',
+          birth_month: birthDate ? (birthDate.getMonth() + 1).toString().padStart(2, '0') : '',
+          birth_day: birthDate ? birthDate.getDate().toString().padStart(2, '0') : '',
           nationality: playerData.nationality || '한국',
           height: playerData.height || null,
           weight: playerData.weight || null,
@@ -201,7 +202,9 @@ export default function ProfilePage() {
             last_name: playerForm.last_name,
             jersey_number: playerForm.jersey_number,
             position: playerForm.position,
-            birth_date: playerForm.birthDate ? playerForm.birthDate.toISOString().split('T')[0] : null,
+            birth_date: playerForm.birth_year && playerForm.birth_month && playerForm.birth_day 
+              ? `${playerForm.birth_year}-${playerForm.birth_month}-${playerForm.birth_day}` 
+              : null,
             nationality: playerForm.nationality || null,
             height: playerForm.height,
             weight: playerForm.weight,
@@ -221,7 +224,9 @@ export default function ProfilePage() {
             last_name: playerForm.last_name,
             jersey_number: playerForm.jersey_number,
             position: playerForm.position,
-            birth_date: playerForm.birthDate ? playerForm.birthDate.toISOString().split('T')[0] : null,
+            birth_date: playerForm.birth_year && playerForm.birth_month && playerForm.birth_day 
+              ? `${playerForm.birth_year}-${playerForm.birth_month}-${playerForm.birth_day}` 
+              : null,
             nationality: playerForm.nationality || null,
             height: playerForm.height,
             weight: playerForm.weight,
@@ -559,29 +564,84 @@ export default function ProfilePage() {
                   </h3>
                   <div className="space-y-2">
                     <Label>생년월일</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start text-left font-normal">
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {playerForm.birthDate ? format(playerForm.birthDate, 'yyyy년 M월 d일', { locale: ko }) : '생년월일을 선택하세요'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <KoreanCalendar
-                          mode="single"
-                          selected={playerForm.birthDate}
-                          onSelect={(date) => {
-                            setPlayerForm({ 
-                              ...playerForm, 
-                              birthDate: date,
-                              birth_date: date ? date.toISOString().split('T')[0] : ''
-                            });
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-2">
+                        <Select
+                          value={playerForm.birth_year}
+                          onValueChange={(value) => {
+                            setPlayerForm({ ...playerForm, birth_year: value });
                           }}
-                          disabled={(date) => date > new Date() || date < new Date(1900, 0, 1)}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="년도" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {Array.from({ length: new Date().getFullYear() - 1899 }, (_, i) => {
+                              const year = new Date().getFullYear() - i;
+                              return (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}년
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Select
+                          value={playerForm.birth_month}
+                          onValueChange={(value) => {
+                            setPlayerForm({ ...playerForm, birth_month: value });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="월" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 12 }, (_, i) => {
+                              const month = (i + 1).toString().padStart(2, '0');
+                              return (
+                                <SelectItem key={month} value={month}>
+                                  {i + 1}월
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Select
+                          value={playerForm.birth_day}
+                          onValueChange={(value) => {
+                            setPlayerForm({ ...playerForm, birth_day: value });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="일" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {(() => {
+                              const year = parseInt(playerForm.birth_year) || new Date().getFullYear();
+                              const month = parseInt(playerForm.birth_month) || 1;
+                              const daysInMonth = new Date(year, month, 0).getDate();
+                              return Array.from({ length: daysInMonth }, (_, i) => {
+                                const day = (i + 1).toString().padStart(2, '0');
+                                return (
+                                  <SelectItem key={day} value={day}>
+                                    {i + 1}일
+                                  </SelectItem>
+                                );
+                              });
+                            })()}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {playerForm.birth_year && playerForm.birth_month && playerForm.birth_day && (
+                      <p className="text-xs text-muted-foreground">
+                        선택된 날짜: {playerForm.birth_year}년 {parseInt(playerForm.birth_month)}월 {parseInt(playerForm.birth_day)}일
+                      </p>
+                    )}
                   </div>
                 </div>
 
