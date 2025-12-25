@@ -33,6 +33,11 @@ const userSidebarMenuItems: SidebarMenuItem[] = [
     icon: LayoutDashboard,
   },
   {
+    title: '내 프로필',
+    href: '/dashboard/profile',
+    icon: UserIcon,
+  },
+  {
     title: '내 리그',
     href: '/dashboard/my-leagues',
     icon: Trophy,

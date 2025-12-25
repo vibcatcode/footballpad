@@ -244,6 +244,13 @@ export function Navigation() {
               <div className="absolute top-full right-0 mt-1 w-48 bg-background border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="py-1">
                   <Link
+                    href="/dashboard/profile"
+                    className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
+                  >
+                    <User className="mr-2 h-4 w-4 text-foreground dark:text-foreground" />
+                    내 프로필
+                  </Link>
+                  <Link
                     href="/dashboard"
                     className="flex items-center px-4 py-2 text-sm text-foreground hover:bg-[#408865] hover:text-white transition-colors duration-200"
                   >
@@ -343,6 +350,14 @@ export function Navigation() {
                       <div className="px-4 py-2 text-sm text-muted-foreground mb-2">
                         {user.user_metadata?.username || user.email}
                       </div>
+                      <Link
+                        href="/dashboard/profile"
+                        className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <User className="h-5 w-5 text-foreground dark:text-foreground" />
+                        <span className="font-medium text-foreground">내 프로필</span>
+                      </Link>
                       <Link
                         href="/dashboard"
                         className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-accent/50 transition-all duration-200 group text-foreground"
