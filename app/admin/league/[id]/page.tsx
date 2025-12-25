@@ -192,6 +192,7 @@ export default function LeagueDetailAdminPage() {
   const fetchAvailableTeams = async () => {
     if (!user) {
       setAvailableTeams([]);
+      setLoadingTeams(false);
       return;
     }
     
@@ -206,10 +207,11 @@ export default function LeagueDetailAdminPage() {
       if (error) {
         console.error('Error fetching available teams:', error);
         setAvailableTeams([]);
+        setLoadingTeams(false);
         return;
       }
 
-      setAvailableTeams(data || []);
+      setAvailableTeams(Array.isArray(data) ? data.filter(team => team && team.id) : []);
     } catch (error) {
       console.error('Error fetching available teams:', error);
       setAvailableTeams([]);
@@ -507,23 +509,29 @@ export default function LeagueDetailAdminPage() {
                           <SelectValue placeholder="추가할 팀을 선택하세요" />
                         </SelectTrigger>
                         <SelectContent>
-                          {loadingTeams ? (
-                            <SelectItem value="" disabled>로딩 중...</SelectItem>
-                          ) : !availableTeams || availableTeams.length === 0 ? (
-                            <SelectItem value="" disabled>사용 가능한 팀이 없습니다</SelectItem>
-                          ) : availableTeams
-                              .filter(team => team && !teams.some(t => t && t.id === team.id))
-                              .length === 0 ? (
-                            <SelectItem value="" disabled>추가할 수 있는 팀이 없습니다</SelectItem>
-                          ) : (
-                            availableTeams
-                              .filter(team => team && !teams.some(t => t && t.id === team.id))
-                              .map(team => (
-                                <SelectItem key={team.id} value={team.id}>
-                                  {team.name} {team.short_name && `(${team.short_name})`}
-                                </SelectItem>
-                              ))
-                          )}
+                          {(() => {
+                            if (loadingTeams) {
+                              return <SelectItem value="" disabled>로딩 중...</SelectItem>;
+                            }
+                            
+                            if (!availableTeams || availableTeams.length === 0) {
+                              return <SelectItem value="" disabled>사용 가능한 팀이 없습니다</SelectItem>;
+                            }
+                            
+                            const filteredTeams = (availableTeams || [])
+                              .filter(team => team && team.id)
+                              .filter(team => !(teams || []).some(t => t && t.id === team.id));
+                            
+                            if (filteredTeams.length === 0) {
+                              return <SelectItem value="" disabled>추가할 수 있는 팀이 없습니다</SelectItem>;
+                            }
+                            
+                            return filteredTeams.map(team => (
+                              <SelectItem key={team.id} value={team.id}>
+                                {team.name}{team.short_name ? ` (${team.short_name})` : ''}
+                              </SelectItem>
+                            ));
+                          })()}
                         </SelectContent>
                       </Select>
                     </div>
