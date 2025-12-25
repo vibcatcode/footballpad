@@ -101,7 +101,16 @@ export default function LeagueDetailAdminPage() {
     if (params.id && user) {
       fetchLeague();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id, user]);
+
+  // 팀 관리 탭을 열 때 사용 가능한 팀 목록 새로고침
+  useEffect(() => {
+    if (activeTab === 'teams' && user && league) {
+      fetchAvailableTeams();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, user, league]);
 
   const fetchLeague = async () => {
     const leagueId = params.id as string;
@@ -181,7 +190,10 @@ export default function LeagueDetailAdminPage() {
   };
 
   const fetchAvailableTeams = async () => {
-    if (!user) return;
+    if (!user) {
+      setAvailableTeams([]);
+      return;
+    }
     
     setLoadingTeams(true);
     try {
@@ -193,12 +205,14 @@ export default function LeagueDetailAdminPage() {
 
       if (error) {
         console.error('Error fetching available teams:', error);
+        setAvailableTeams([]);
         return;
       }
 
       setAvailableTeams(data || []);
     } catch (error) {
       console.error('Error fetching available teams:', error);
+      setAvailableTeams([]);
     } finally {
       setLoadingTeams(false);
     }
@@ -495,11 +509,15 @@ export default function LeagueDetailAdminPage() {
                         <SelectContent>
                           {loadingTeams ? (
                             <SelectItem value="" disabled>로딩 중...</SelectItem>
-                          ) : availableTeams.length === 0 ? (
+                          ) : !availableTeams || availableTeams.length === 0 ? (
                             <SelectItem value="" disabled>사용 가능한 팀이 없습니다</SelectItem>
+                          ) : availableTeams
+                              .filter(team => team && !teams.some(t => t && t.id === team.id))
+                              .length === 0 ? (
+                            <SelectItem value="" disabled>추가할 수 있는 팀이 없습니다</SelectItem>
                           ) : (
                             availableTeams
-                              .filter(team => !teams.some(t => t.id === team.id))
+                              .filter(team => team && !teams.some(t => t && t.id === team.id))
                               .map(team => (
                                 <SelectItem key={team.id} value={team.id}>
                                   {team.name} {team.short_name && `(${team.short_name})`}
@@ -526,7 +544,7 @@ export default function LeagueDetailAdminPage() {
                       )}
                     </Button>
                   </div>
-                  {availableTeams.length === 0 && (
+                  {(!availableTeams || availableTeams.length === 0) && !loadingTeams && (
                     <p className="text-sm text-muted-foreground">
                       추가할 팀이 없습니다. <Link href="/teams/create" className="text-primary underline">팀을 생성</Link>해주세요.
                     </p>
@@ -536,8 +554,8 @@ export default function LeagueDetailAdminPage() {
                 {/* 현재 팀 목록 */}
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4">참여 중인 팀 ({teams.length})</h3>
-                    {teams.length === 0 ? (
+                    <h3 className="text-lg font-semibold mb-4">참여 중인 팀 ({teams?.length || 0})</h3>
+                    {!teams || teams.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground border rounded-lg">
                         아직 참여 중인 팀이 없습니다.
                       </div>
@@ -552,7 +570,7 @@ export default function LeagueDetailAdminPage() {
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            {teams.map(team => (
+                            {teams?.map(team => team ? (
                               <TableRow key={team.id}>
                                 <TableCell className="font-medium">{team.name}</TableCell>
                                 <TableCell>{team.short_name || '-'}</TableCell>
@@ -567,7 +585,7 @@ export default function LeagueDetailAdminPage() {
                                   </Button>
                                 </TableCell>
                               </TableRow>
-                            ))}
+                            ) : null)}
                           </TableBody>
                         </Table>
                       </div>
