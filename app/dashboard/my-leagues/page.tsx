@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trophy, Plus, Edit, Trash2, Search, RefreshCw } from 'lucide-react';
+import { Trophy, Plus, Edit, Trash2, Search, RefreshCw, Settings } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -440,6 +440,14 @@ export default function MyLeaguesPage() {
                           <Button variant="outline" size="sm" asChild>
                             <Link href={`/league/${league.id}`}>보기</Link>
                           </Button>
+                          {league.created_by === user?.id && (
+                            <Button variant="outline" size="sm" asChild>
+                              <Link href={`/admin/league/${league.id}`}>
+                                <Settings className="w-4 h-4 mr-1" />
+                                관리
+                              </Link>
+                            </Button>
+                          )}
                           {isSuperAdmin && (
                             <>
                               <Button

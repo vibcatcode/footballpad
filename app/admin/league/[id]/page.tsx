@@ -12,7 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
-import { Trophy, ArrowLeft, Users, Calendar, Settings, Plus, Trash2, Edit, Play } from 'lucide-react';
+import { Trophy, ArrowLeft, Users, Calendar, Settings, Plus, Trash2, Edit, Play, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import {
   Table,
   TableBody,
@@ -91,6 +92,10 @@ export default function LeagueDetailAdminPage() {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  const [availableTeams, setAvailableTeams] = useState<Team[]>([]);
+  const [loadingTeams, setLoadingTeams] = useState(false);
+  const [selectedTeamId, setSelectedTeamId] = useState<string>('');
+  const [addingTeam, setAddingTeam] = useState(false);
 
   useEffect(() => {
     if (params.id && user) {
@@ -127,7 +132,8 @@ export default function LeagueDetailAdminPage() {
       await Promise.all([
         fetchTeams(leagueId),
         fetchMatches(leagueId),
-        fetchParticipants(leagueId)
+        fetchParticipants(leagueId),
+        fetchAvailableTeams()
       ]);
     } catch (error) {
       console.error('Error fetching league:', error);
@@ -137,13 +143,24 @@ export default function LeagueDetailAdminPage() {
   };
 
   const fetchTeams = async (leagueId: string) => {
-    // 리그에 참여한 팀들 가져오기 (경기에서 사용된 팀들)
+    // 리그에 참여한 팀들 가져오기 (league_participants에서 team_id가 있는 것들)
+    const { data: participantsData } = await supabase
+      .from('league_participants')
+      .select('team_id')
+      .eq('league_id', leagueId)
+      .not('team_id', 'is', null);
+
+    const teamIds = new Set<string>();
+    participantsData?.forEach(p => {
+      if (p.team_id) teamIds.add(p.team_id);
+    });
+
+    // 경기에서 사용된 팀들도 추가
     const { data: matchesData } = await supabase
       .from('matches')
       .select('home_team_id, away_team_id')
       .eq('league_id', leagueId);
 
-    const teamIds = new Set<string>();
     matchesData?.forEach(match => {
       if (match.home_team_id) teamIds.add(match.home_team_id);
       if (match.away_team_id) teamIds.add(match.away_team_id);
@@ -158,6 +175,32 @@ export default function LeagueDetailAdminPage() {
       if (teamsData) {
         setTeams(teamsData as Team[]);
       }
+    } else {
+      setTeams([]);
+    }
+  };
+
+  const fetchAvailableTeams = async () => {
+    if (!user) return;
+    
+    setLoadingTeams(true);
+    try {
+      const { data, error } = await supabase
+        .from('teams')
+        .select('id, name, short_name')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching available teams:', error);
+        return;
+      }
+
+      setAvailableTeams(data || []);
+    } catch (error) {
+      console.error('Error fetching available teams:', error);
+    } finally {
+      setLoadingTeams(false);
     }
   };
 
@@ -252,6 +295,85 @@ export default function LeagueDetailAdminPage() {
     }
   };
 
+  const handleAddTeam = async () => {
+    if (!selectedTeamId || !league || !user) {
+      alert('팀을 선택해주세요.');
+      return;
+    }
+
+    setAddingTeam(true);
+    try {
+      // 이미 리그에 참여 중인지 확인
+      const { data: existingParticipant } = await supabase
+        .from('league_participants')
+        .select('id')
+        .eq('league_id', league.id)
+        .eq('team_id', selectedTeamId)
+        .single();
+
+      if (existingParticipant) {
+        alert('이미 리그에 참여 중인 팀입니다.');
+        setAddingTeam(false);
+        return;
+      }
+
+      // 리그에 팀 추가 (league_participants에 추가)
+      const { error } = await supabase
+        .from('league_participants')
+        .insert({
+          league_id: league.id,
+          user_id: user.id,
+          team_id: selectedTeamId,
+          role: 'admin',
+          status: 'approved',
+        });
+
+      if (error) throw error;
+
+      alert('팀이 리그에 추가되었습니다.');
+      setSelectedTeamId('');
+      await Promise.all([
+        fetchTeams(league.id),
+        fetchParticipants(league.id),
+        fetchAvailableTeams()
+      ]);
+    } catch (error) {
+      console.error('Error adding team:', error);
+      alert('팀 추가에 실패했습니다.');
+    } finally {
+      setAddingTeam(false);
+    }
+  };
+
+  const handleRemoveTeam = async (teamId: string, teamName: string) => {
+    if (!league) return;
+
+    if (!confirm(`정말로 "${teamName}" 팀을 리그에서 제거하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      // league_participants에서 해당 팀 제거
+      const { error } = await supabase
+        .from('league_participants')
+        .delete()
+        .eq('league_id', league.id)
+        .eq('team_id', teamId);
+
+      if (error) throw error;
+
+      alert('팀이 리그에서 제거되었습니다.');
+      await Promise.all([
+        fetchTeams(league.id),
+        fetchParticipants(league.id),
+        fetchAvailableTeams()
+      ]);
+    } catch (error) {
+      console.error('Error removing team:', error);
+      alert('팀 제거에 실패했습니다.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -300,8 +422,9 @@ export default function LeagueDetailAdminPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">개요</TabsTrigger>
+            <TabsTrigger value="teams">팀 관리</TabsTrigger>
             <TabsTrigger value="matches">경기 관리</TabsTrigger>
             <TabsTrigger value="participants">참여자 관리</TabsTrigger>
             <TabsTrigger value="settings">설정</TabsTrigger>
@@ -344,6 +467,115 @@ export default function LeagueDetailAdminPage() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* 팀 관리 */}
+          <TabsContent value="teams">
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>팀 관리</CardTitle>
+                    <CardDescription>
+                      리그에 참여하는 팀을 추가하거나 제거할 수 있습니다.
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* 팀 추가 */}
+                <div className="space-y-4">
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1 space-y-2">
+                      <Label>팀 추가</Label>
+                      <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="추가할 팀을 선택하세요" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {loadingTeams ? (
+                            <SelectItem value="" disabled>로딩 중...</SelectItem>
+                          ) : availableTeams.length === 0 ? (
+                            <SelectItem value="" disabled>사용 가능한 팀이 없습니다</SelectItem>
+                          ) : (
+                            availableTeams
+                              .filter(team => !teams.some(t => t.id === team.id))
+                              .map(team => (
+                                <SelectItem key={team.id} value={team.id}>
+                                  {team.name} {team.short_name && `(${team.short_name})`}
+                                </SelectItem>
+                              ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button 
+                      onClick={handleAddTeam} 
+                      disabled={!selectedTeamId || addingTeam}
+                    >
+                      {addingTeam ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          추가 중...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="w-4 h-4 mr-2" />
+                          팀 추가
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                  {availableTeams.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      추가할 팀이 없습니다. <Link href="/teams/create" className="text-primary underline">팀을 생성</Link>해주세요.
+                    </p>
+                  )}
+                </div>
+
+                {/* 현재 팀 목록 */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">참여 중인 팀 ({teams.length})</h3>
+                    {teams.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                        아직 참여 중인 팀이 없습니다.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>팀명</TableHead>
+                              <TableHead>약칭</TableHead>
+                              <TableHead className="text-right">관리</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {teams.map(team => (
+                              <TableRow key={team.id}>
+                                <TableCell className="font-medium">{team.name}</TableCell>
+                                <TableCell>{team.short_name || '-'}</TableCell>
+                                <TableCell className="text-right">
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleRemoveTeam(team.id, team.name)}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-1" />
+                                    제거
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* 경기 관리 */}
