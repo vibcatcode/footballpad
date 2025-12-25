@@ -9,14 +9,18 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { KoreanCalendar } from '@/components/ui/korean-calendar';
 import { supabase } from '@/lib/supabase';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { 
   User, 
   Save, 
   UserCircle, 
   Ruler, 
   Weight, 
-  Calendar,
+  Calendar as CalendarIcon,
   MapPin,
   Footprints,
   Award,
@@ -79,6 +83,7 @@ export default function ProfilePage() {
     jersey_number: null as number | null,
     position: 'CM' as 'GK' | 'CB' | 'LB' | 'RB' | 'CDM' | 'CM' | 'CAM' | 'LW' | 'RW' | 'ST',
     birth_date: '',
+    birthDate: undefined as Date | undefined,
     nationality: '한국',
     height: null as number | null,
     weight: null as number | null,
@@ -136,6 +141,7 @@ export default function ProfilePage() {
           jersey_number: playerData.jersey_number || null,
           position: playerData.position || 'CM',
           birth_date: playerData.birth_date || '',
+          birthDate: playerData.birth_date ? new Date(playerData.birth_date) : undefined,
           nationality: playerData.nationality || '한국',
           height: playerData.height || null,
           weight: playerData.weight || null,
@@ -195,7 +201,7 @@ export default function ProfilePage() {
             last_name: playerForm.last_name,
             jersey_number: playerForm.jersey_number,
             position: playerForm.position,
-            birth_date: playerForm.birth_date || null,
+            birth_date: playerForm.birthDate ? playerForm.birthDate.toISOString().split('T')[0] : null,
             nationality: playerForm.nationality || null,
             height: playerForm.height,
             weight: playerForm.weight,
@@ -215,7 +221,7 @@ export default function ProfilePage() {
             last_name: playerForm.last_name,
             jersey_number: playerForm.jersey_number,
             position: playerForm.position,
-            birth_date: playerForm.birth_date || null,
+            birth_date: playerForm.birthDate ? playerForm.birthDate.toISOString().split('T')[0] : null,
             nationality: playerForm.nationality || null,
             height: playerForm.height,
             weight: playerForm.weight,
@@ -548,16 +554,34 @@ export default function ProfilePage() {
                 {/* 생년월일 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+                    <CalendarIcon className="w-5 h-5" />
                     개인 정보
                   </h3>
                   <div className="space-y-2">
                     <Label>생년월일</Label>
-                    <Input
-                      type="date"
-                      value={playerForm.birth_date}
-                      onChange={(e) => setPlayerForm({ ...playerForm, birth_date: e.target.value })}
-                    />
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full justify-start text-left font-normal">
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {playerForm.birthDate ? format(playerForm.birthDate, 'yyyy년 M월 d일', { locale: ko }) : '생년월일을 선택하세요'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <KoreanCalendar
+                          mode="single"
+                          selected={playerForm.birthDate}
+                          onSelect={(date) => {
+                            setPlayerForm({ 
+                              ...playerForm, 
+                              birthDate: date,
+                              birth_date: date ? date.toISOString().split('T')[0] : ''
+                            });
+                          }}
+                          disabled={(date) => date > new Date() || date < new Date(1900, 0, 1)}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
