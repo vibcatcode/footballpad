@@ -24,7 +24,7 @@ import {
   Activity,
   Users
 } from 'lucide-react';
-import { Link } from 'next/navigation';
+import Link from 'next/link';
 
 const POSITION_OPTIONS = [
   { value: 'GK', label: 'GK (골키퍼)', emoji: '🥅' },
