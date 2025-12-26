@@ -1,8 +1,13 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { 
   Users, 
   Settings, 
@@ -13,55 +18,230 @@ import {
   Filter,
   Trophy,
   Calendar,
-  BarChart3
+  BarChart3,
+  Send,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
+import { useAuth } from '@/lib/auth-context';
+import { supabase } from '@/lib/supabase';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
-const teams = [
-  {
-    id: 1,
-    name: 'FC 서울',
-    shortName: 'FC서울',
-    location: '서울특별시',
-    founded: 1983,
-    players: 25,
-    staff: 8,
-    status: 'active',
-    league: 'K리그 2024',
-    wins: 12,
-    draws: 5,
-    losses: 3
-  },
-  {
-    id: 2,
-    name: '수원 삼성',
-    shortName: '수원',
-    location: '수원시',
-    founded: 1995,
-    players: 23,
-    staff: 7,
-    status: 'active',
-    league: 'K리그 2024',
-    wins: 10,
-    draws: 7,
-    losses: 3
-  },
-  {
-    id: 3,
-    name: '전북 현대',
-    shortName: '전북',
-    location: '전주시',
-    founded: 1994,
-    players: 24,
-    staff: 9,
-    status: 'inactive',
-    league: 'K리그 2024',
-    wins: 8,
-    draws: 6,
-    losses: 6
-  }
-];
+interface Team {
+  id: string;
+  name: string;
+  short_name: string | null;
+  location: string | null;
+  founded_year: number | null;
+  description: string | null;
+  created_by: string;
+}
+
+interface League {
+  id: string;
+  name: string;
+  description: string | null;
+  season: string | null;
+  status: string;
+  visibility: string;
+  created_by: string;
+}
 
 export default function ManageTeamsPage() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [myLeagues, setMyLeagues] = useState<League[]>([]);
+  const [publicLeagues, setPublicLeagues] = useState<League[]>([]);
+  const [selectedLeagues, setSelectedLeagues] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loadingLeagues, setLoadingLeagues] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchTeams();
+    }
+  }, [user]);
+
+  const fetchTeams = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching teams:', error);
+        return;
+      }
+
+      setTeams(data || []);
+    } catch (error) {
+      console.error('Error fetching teams:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchLeagues = async () => {
+    if (!user) return;
+    setLoadingLeagues(true);
+    try {
+      // 사용자가 만든 리그
+      const { data: myLeaguesData, error: myError } = await supabase
+        .from('leagues')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      // 공개 리그 (사용자가 만든 것 제외)
+      const { data: publicLeaguesData, error: publicError } = await supabase
+        .from('leagues')
+        .select('*')
+        .eq('visibility', 'public')
+        .neq('created_by', user.id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (myError || publicError) {
+        console.error('Error fetching leagues:', myError || publicError);
+        return;
+      }
+
+      setMyLeagues(myLeaguesData || []);
+      setPublicLeagues(publicLeaguesData || []);
+    } catch (error) {
+      console.error('Error fetching leagues:', error);
+    } finally {
+      setLoadingLeagues(false);
+    }
+  };
+
+  const searchPublicLeagues = async (query: string) => {
+    if (!user || !query.trim()) {
+      setPublicLeagues([]);
+      return;
+    }
+
+    setLoadingLeagues(true);
+    try {
+      const { data, error } = await supabase
+        .from('leagues')
+        .select('*')
+        .eq('visibility', 'public')
+        .neq('created_by', user.id)
+        .eq('status', 'active')
+        .ilike('name', `%${query}%`)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) {
+        console.error('Error searching leagues:', error);
+        return;
+      }
+
+      setPublicLeagues(data || []);
+    } catch (error) {
+      console.error('Error searching leagues:', error);
+    } finally {
+      setLoadingLeagues(false);
+    }
+  };
+
+  const handleOpenDialog = (team: Team) => {
+    setSelectedTeam(team);
+    setSelectedLeagues([]);
+    setSearchQuery('');
+    setPublicLeagues([]);
+    fetchLeagues();
+    setDialogOpen(true);
+  };
+
+  const handleLeagueToggle = (leagueId: string) => {
+    setSelectedLeagues(prev => 
+      prev.includes(leagueId) 
+        ? prev.filter(id => id !== leagueId)
+        : [...prev, leagueId]
+    );
+  };
+
+  const handleSendLeagueRequests = async () => {
+    if (!user || !selectedTeam || selectedLeagues.length === 0) return;
+
+    setSubmitting(true);
+    try {
+      // 이미 참여 중인 리그 확인
+      const { data: existingParticipants } = await supabase
+        .from('league_participants')
+        .select('league_id')
+        .eq('team_id', selectedTeam.id)
+        .in('league_id', selectedLeagues);
+
+      const existingLeagueIds = new Set(existingParticipants?.map(p => p.league_id) || []);
+      const newLeagueIds = selectedLeagues.filter(id => !existingLeagueIds.has(id));
+
+      if (newLeagueIds.length === 0) {
+        alert('이미 선택한 리그에 모두 참여 중입니다.');
+        setSubmitting(false);
+        return;
+      }
+
+      const participantRequests = newLeagueIds.map(leagueId => ({
+        league_id: leagueId,
+        user_id: user.id,
+        team_id: selectedTeam.id,
+        role: 'participant' as const,
+        status: 'pending' as const,
+      }));
+
+      const { error: requestError } = await supabase
+        .from('league_participants')
+        .insert(participantRequests);
+
+      if (requestError) {
+        console.error('Error sending league requests:', requestError);
+        alert('리그 참여 요청 전송에 실패했습니다.');
+        setSubmitting(false);
+        return;
+      }
+
+      alert(`${newLeagueIds.length}개의 리그에 참여 요청을 보냈습니다!`);
+      setDialogOpen(false);
+      setSelectedTeam(null);
+      setSelectedLeagues([]);
+    } catch (error) {
+      console.error('Error sending league requests:', error);
+      alert('리그 참여 요청 전송에 실패했습니다.');
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">로딩 중...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-8">
@@ -134,62 +314,233 @@ export default function ManageTeamsPage() {
         {/* 팀 목록 */}
         <Card>
           <CardHeader>
-            <CardTitle>팀 목록</CardTitle>
-            <CardDescription>등록된 모든 팀들의 정보를 관리할 수 있습니다</CardDescription>
+            <CardTitle>내 팀 목록</CardTitle>
+            <CardDescription>내가 생성한 팀들을 관리하고 리그에 참여 요청을 보낼 수 있습니다</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {teams.map((team) => (
-                <div key={team.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Users className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-semibold">{team.name}</h3>
-                        <span className="text-sm text-muted-foreground">({team.shortName})</span>
-                        <Badge variant={team.status === 'active' ? 'default' : 'secondary'}>
-                          {team.status === 'active' ? '활성' : '비활성'}
-                        </Badge>
+            {teams.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">팀이 없습니다</h3>
+                <p className="text-muted-foreground mb-6">
+                  첫 번째 팀을 만들어보세요!
+                </p>
+                <Button asChild>
+                  <Link href="/teams/create">
+                    <Plus className="w-4 h-4 mr-2" />
+                    팀 생성
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {teams.map((team) => (
+                  <div key={team.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6 text-primary" />
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <span>{team.location}</span>
-                        <span>•</span>
-                        <span>창단: {team.founded}</span>
-                        <span>•</span>
-                        <span>{team.league}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <h3 className="font-semibold">{team.name}</h3>
+                          {team.short_name && (
+                            <span className="text-sm text-muted-foreground">({team.short_name})</span>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          {team.location && <span>{team.location}</span>}
+                          {team.location && team.founded_year && <span>•</span>}
+                          {team.founded_year && <span>창단: {team.founded_year}</span>}
+                        </div>
+                        {team.description && (
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                            {team.description}
+                          </p>
+                        )}
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-6">
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground">선수</p>
-                      <p className="font-semibold">{team.players}명</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground">스태프</p>
-                      <p className="font-semibold">{team.staff}명</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-muted-foreground">전적</p>
-                      <p className="font-semibold">{team.wins}승 {team.draws}무 {team.losses}패</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Button size="sm" variant="outline">
-                        <Edit className="w-4 h-4" />
+                      <Dialog open={dialogOpen && selectedTeam?.id === team.id} onOpenChange={(open) => {
+                        if (!open) {
+                          setDialogOpen(false);
+                          setSelectedTeam(null);
+                          setSelectedLeagues([]);
+                          setSearchQuery('');
+                          setPublicLeagues([]);
+                        }
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleOpenDialog(team)}
+                          >
+                            <Trophy className="w-4 h-4 mr-2" />
+                            리그 참여
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>리그 참여 요청 보내기</DialogTitle>
+                            <DialogDescription>
+                              "{team.name}" 팀을 리그에 참여시키기 위한 요청을 보냅니다.
+                            </DialogDescription>
+                          </DialogHeader>
+                          
+                          <div className="space-y-4 mt-4">
+                            {/* 내가 만든 리그 */}
+                            {myLeagues.length > 0 && (
+                              <div className="space-y-2">
+                                <Label>내가 만든 리그</Label>
+                                <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                                  {myLeagues.map(league => (
+                                    <div
+                                      key={league.id}
+                                      className="flex items-center justify-between p-2 rounded hover:bg-accent cursor-pointer"
+                                      onClick={() => handleLeagueToggle(league.id)}
+                                    >
+                                      <div className="flex-1">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-medium">{league.name}</span>
+                                          {league.season && (
+                                            <Badge variant="outline" className="text-xs">
+                                              {league.season}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        {league.description && (
+                                          <p className="text-xs text-muted-foreground truncate">
+                                            {league.description}
+                                          </p>
+                                        )}
+                                      </div>
+                                      {selectedLeagues.includes(league.id) ? (
+                                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                                      ) : (
+                                        <div className="w-5 h-5 rounded-full border-2 border-muted" />
+                                      )}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* 공개 리그 검색 */}
+                            <div className="space-y-2">
+                              <Label>공개 리그 검색</Label>
+                              <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    placeholder="리그 이름으로 검색..."
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                      setSearchQuery(e.target.value);
+                                      searchPublicLeagues(e.target.value);
+                                    }}
+                                    className="pl-10"
+                                  />
+                                </div>
+                              </div>
+                              {searchQuery && (
+                                <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-2">
+                                  {loadingLeagues ? (
+                                    <div className="text-sm text-muted-foreground text-center py-2">
+                                      검색 중...
+                                    </div>
+                                  ) : publicLeagues.length > 0 ? (
+                                    publicLeagues.map(league => (
+                                      <div
+                                        key={league.id}
+                                        className="flex items-center justify-between p-2 rounded hover:bg-accent cursor-pointer"
+                                        onClick={() => handleLeagueToggle(league.id)}
+                                      >
+                                        <div className="flex-1">
+                                          <div className="flex items-center gap-2">
+                                            <span className="font-medium">{league.name}</span>
+                                            {league.season && (
+                                              <Badge variant="outline" className="text-xs">
+                                                {league.season}
+                                              </Badge>
+                                            )}
+                                          </div>
+                                          {league.description && (
+                                            <p className="text-xs text-muted-foreground truncate">
+                                              {league.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                        {selectedLeagues.includes(league.id) ? (
+                                          <CheckCircle2 className="w-5 h-5 text-primary" />
+                                        ) : (
+                                          <div className="w-5 h-5 rounded-full border-2 border-muted" />
+                                        )}
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="text-sm text-muted-foreground text-center py-2">
+                                      검색 결과가 없습니다
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+
+                            {selectedLeagues.length > 0 && (
+                              <div className="flex items-center gap-2 text-sm text-primary p-3 bg-primary/10 rounded-lg">
+                                <Send className="w-4 h-4" />
+                                <span>{selectedLeagues.length}개의 리그에 참여 요청을 보냅니다</span>
+                              </div>
+                            )}
+
+                            <div className="flex justify-end gap-2 pt-4 border-t">
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setDialogOpen(false);
+                                  setSelectedTeam(null);
+                                  setSelectedLeagues([]);
+                                  setSearchQuery('');
+                                  setPublicLeagues([]);
+                                }}
+                              >
+                                취소
+                              </Button>
+                              <Button 
+                                onClick={handleSendLeagueRequests}
+                                disabled={selectedLeagues.length === 0 || submitting}
+                              >
+                                {submitting ? (
+                                  <>
+                                    <Users className="w-4 h-4 mr-2 animate-spin" />
+                                    전송 중...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="w-4 h-4 mr-2" />
+                                    참여 요청 보내기
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/teams/${team.id}`}>
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
-                      <Button size="sm" variant="outline">
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline" className="text-destructive hover:text-destructive">
-                        <Trash2 className="w-4 h-4" />
+                      <Button size="sm" variant="outline" asChild>
+                        <Link href={`/admin/teams/${team.id}`}>
+                          <Settings className="w-4 h-4" />
+                        </Link>
                       </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
