@@ -564,6 +564,50 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
+                {/* 소속 팀 */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    소속 팀
+                  </h3>
+                  <div className="space-y-2">
+                    <Label>소속 팀</Label>
+                    {loadingTeams ? (
+                      <div className="text-sm text-muted-foreground">팀 목록을 불러오는 중...</div>
+                    ) : availableTeams.length === 0 ? (
+                      <div className="space-y-2">
+                        <div className="text-sm text-muted-foreground">
+                          소속 가능한 팀이 없습니다. 먼저 팀을 생성하거나 팀에 등록해주세요.
+                        </div>
+                        <Link href="/teams/create">
+                          <Button variant="outline" size="sm" className="w-full">
+                            새 팀 생성하기
+                          </Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <Select
+                        value={playerForm.team_id || ''}
+                        onValueChange={(value) => {
+                          setPlayerForm({ ...playerForm, team_id: value || null });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="소속 팀을 선택하세요" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">소속 없음</SelectItem>
+                          {availableTeams.map(team => (
+                            <SelectItem key={team.id} value={team.id}>
+                              {team.name} {team.short_name ? `(${team.short_name})` : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                </div>
+
                 {/* 피지컬 정보 */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
