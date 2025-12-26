@@ -21,8 +21,10 @@ import {
   Footprints,
   Award,
   Target,
-  Activity
+  Activity,
+  Users
 } from 'lucide-react';
+import { Link } from 'next/navigation';
 
 const POSITION_OPTIONS = [
   { value: 'GK', label: 'GK (골키퍼)', emoji: '🥅' },
@@ -86,13 +88,82 @@ export default function ProfilePage() {
     height: null as number | null,
     weight: null as number | null,
     preferred_foot: 'right' as 'left' | 'right' | 'both',
+    team_id: null as string | null,
   });
+
+  const [availableTeams, setAvailableTeams] = useState<Array<{ id: string; name: string; short_name: string | null }>>([]);
+  const [loadingTeams, setLoadingTeams] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchProfile();
+      fetchAvailableTeams();
     }
   }, [user]);
+
+  const fetchAvailableTeams = async () => {
+    if (!user) {
+      setAvailableTeams([]);
+      setLoadingTeams(false);
+      return;
+    }
+    
+    setLoadingTeams(true);
+    try {
+      // 사용자가 만든 팀 가져오기
+      const { data: createdTeams, error: createdError } = await supabase
+        .from('teams')
+        .select('id, name, short_name')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+
+      // 사용자가 등록된 팀 가져오기 (league_participants에서)
+      const { data: participantData, error: participantError } = await supabase
+        .from('league_participants')
+        .select('team_id, team:teams!league_participants_team_id_fkey(id, name, short_name)')
+        .eq('user_id', user.id)
+        .not('team_id', 'is', null);
+
+      if (createdError || participantError) {
+        console.error('Error fetching teams:', createdError || participantError);
+        setAvailableTeams(createdTeams || []);
+        setLoadingTeams(false);
+        return;
+      }
+
+      // 팀 ID를 Set으로 관리하여 중복 제거
+      const teamMap = new Map<string, { id: string; name: string; short_name: string | null }>();
+      
+      // 사용자가 만든 팀 추가
+      if (createdTeams) {
+        createdTeams.forEach(team => {
+          if (team && team.id) {
+            teamMap.set(team.id, { id: team.id, name: team.name, short_name: team.short_name });
+          }
+        });
+      }
+
+      // 사용자가 등록된 팀 추가
+      if (participantData) {
+        participantData.forEach((participant: any) => {
+          if (participant.team && participant.team.id) {
+            teamMap.set(participant.team.id, {
+              id: participant.team.id,
+              name: participant.team.name,
+              short_name: participant.team.short_name
+            });
+          }
+        });
+      }
+
+      setAvailableTeams(Array.from(teamMap.values()).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (error) {
+      console.error('Error fetching available teams:', error);
+      setAvailableTeams([]);
+    } finally {
+      setLoadingTeams(false);
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -147,6 +218,7 @@ export default function ProfilePage() {
           height: playerData.height || null,
           weight: playerData.weight || null,
           preferred_foot: playerData.preferred_foot || 'right',
+          team_id: playerData.team_id || null,
         });
       } else {
         // 선수 프로필이 없으면 사용자 이름으로 초기화
@@ -209,6 +281,7 @@ export default function ProfilePage() {
             height: playerForm.height,
             weight: playerForm.weight,
             preferred_foot: playerForm.preferred_foot,
+            team_id: playerForm.team_id || null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', playerProfile.id);
@@ -231,6 +304,7 @@ export default function ProfilePage() {
             height: playerForm.height,
             weight: playerForm.weight,
             preferred_foot: playerForm.preferred_foot,
+            team_id: playerForm.team_id || null,
             status: 'active',
           });
 
