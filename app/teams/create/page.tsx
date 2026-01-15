@@ -55,6 +55,7 @@ export default function CreateTeamPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -128,9 +129,31 @@ export default function CreateTeamPage() {
     }
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+
+    // 기존 타이머가 있으면 취소
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // 검색어가 비어있으면 즉시 클리어
+    if (!query.trim()) {
+      setPublicLeagues([]);
+      return;
+    }
+
+    // 500ms 후에 검색 실행
+    const timeout = setTimeout(() => {
+      searchPublicLeagues(query);
+    }, 500);
+
+    setSearchTimeout(timeout);
+  };
+
   const handleLeagueToggle = (leagueId: string) => {
-    setSelectedLeagues(prev => 
-      prev.includes(leagueId) 
+    setSelectedLeagues(prev =>
+      prev.includes(leagueId)
         ? prev.filter(id => id !== leagueId)
         : [...prev, leagueId]
     );
@@ -359,10 +382,7 @@ export default function CreateTeamPage() {
                           <Input
                             placeholder="리그 이름으로 검색..."
                             value={searchQuery}
-                            onChange={(e) => {
-                              setSearchQuery(e.target.value);
-                              searchPublicLeagues(e.target.value);
-                            }}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             className="pl-10"
                           />
                         </div>

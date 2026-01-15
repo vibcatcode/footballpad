@@ -54,6 +54,13 @@ interface League {
   created_by: string;
 }
 
+interface TeamStats {
+  totalTeams: number;
+  activeTeams: number;
+  totalPlayers: number;
+  totalStaff: number;
+}
+
 export default function ManageTeamsPage() {
   const { user } = useAuth();
   const router = useRouter();
@@ -67,10 +74,18 @@ export default function ManageTeamsPage() {
   const [loadingLeagues, setLoadingLeagues] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [stats, setStats] = useState<TeamStats>({
+    totalTeams: 0,
+    activeTeams: 0,
+    totalPlayers: 0,
+    totalStaff: 0,
+  });
+  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (user) {
       fetchTeams();
+      fetchStats();
     }
   }, [user]);
 
@@ -94,6 +109,45 @@ export default function ManageTeamsPage() {
       console.error('Error fetching teams:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    if (!user) return;
+    try {
+      // 사용자가 생성한 팀 ID 목록 가져오기
+      const { data: userTeams } = await supabase
+        .from('teams')
+        .select('id')
+        .eq('created_by', user.id);
+
+      const userTeamIds = userTeams?.map(t => t.id) || [];
+      const totalTeams = userTeamIds.length;
+
+      if (totalTeams === 0) {
+        setStats({
+          totalTeams: 0,
+          activeTeams: 0,
+          totalPlayers: 0,
+          totalStaff: 0,
+        });
+        return;
+      }
+
+      // 선수 수 계산
+      const { count: playersCount } = await supabase
+        .from('players')
+        .select('*', { count: 'exact', head: true })
+        .in('team_id', userTeamIds);
+
+      setStats({
+        totalTeams,
+        activeTeams: totalTeams, // 모든 팀을 활성으로 간주
+        totalPlayers: playersCount || 0,
+        totalStaff: 0, // 스태프 테이블이 없으므로 0으로 설정
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
   };
 
@@ -163,6 +217,28 @@ export default function ManageTeamsPage() {
     }
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+
+    // 기존 타이머가 있으면 취소
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+
+    // 검색어가 비어있으면 즉시 클리어
+    if (!query.trim()) {
+      setPublicLeagues([]);
+      return;
+    }
+
+    // 500ms 후에 검색 실행
+    const timeout = setTimeout(() => {
+      searchPublicLeagues(query);
+    }, 500);
+
+    setSearchTimeout(timeout);
+  };
+
   const handleOpenDialog = (team: Team) => {
     setSelectedTeam(team);
     setSelectedLeagues([]);
@@ -224,6 +300,7 @@ export default function ManageTeamsPage() {
       setDialogOpen(false);
       setSelectedTeam(null);
       setSelectedLeagues([]);
+      setSubmitting(false);
     } catch (error) {
       console.error('Error sending league requests:', error);
       alert('리그 참여 요청 전송에 실패했습니다.');
@@ -252,17 +329,11 @@ export default function ManageTeamsPage() {
             <p className="text-gray-600 dark:text-gray-300">등록된 팀들을 관리하고 정보를 수정하세요</p>
           </div>
           <div className="flex gap-2 mt-4 sm:mt-0">
-            <Button variant="outline" size="sm">
-              <Search className="w-4 h-4 mr-2" />
-              검색
-            </Button>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              필터
-            </Button>
-            <Button size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              새 팀 추가
+            <Button size="sm" asChild>
+              <Link href="/teams/create">
+                <Plus className="w-4 h-4 mr-2" />
+                새 팀 추가
+              </Link>
             </Button>
           </div>
         </div>
@@ -275,8 +346,8 @@ export default function ManageTeamsPage() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">72</div>
-              <p className="text-xs text-muted-foreground">+3 이번 달</p>
+              <div className="text-2xl font-bold">{stats.totalTeams}</div>
+              <p className="text-xs text-muted-foreground">내가 만든 팀</p>
             </CardContent>
           </Card>
           <Card>
@@ -285,8 +356,10 @@ export default function ManageTeamsPage() {
               <Trophy className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">68</div>
-              <p className="text-xs text-muted-foreground">94.4%</p>
+              <div className="text-2xl font-bold">{stats.activeTeams}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalTeams > 0 ? '100%' : '0%'}
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -295,8 +368,13 @@ export default function ManageTeamsPage() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,728</div>
-              <p className="text-xs text-muted-foreground">평균 24명/팀</p>
+              <div className="text-2xl font-bold">{stats.totalPlayers}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalTeams > 0
+                  ? `평균 ${Math.round(stats.totalPlayers / stats.totalTeams)}명/팀`
+                  : '팀 없음'
+                }
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -305,8 +383,13 @@ export default function ManageTeamsPage() {
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">216</div>
-              <p className="text-xs text-muted-foreground">평균 3명/팀</p>
+              <div className="text-2xl font-bold">{stats.totalStaff}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.totalTeams > 0
+                  ? `평균 ${Math.round(stats.totalStaff / stats.totalTeams)}명/팀`
+                  : '팀 없음'
+                }
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -434,10 +517,7 @@ export default function ManageTeamsPage() {
                                   <Input
                                     placeholder="리그 이름으로 검색..."
                                     value={searchQuery}
-                                    onChange={(e) => {
-                                      setSearchQuery(e.target.value);
-                                      searchPublicLeagues(e.target.value);
-                                    }}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
                                     className="pl-10"
                                   />
                                 </div>
